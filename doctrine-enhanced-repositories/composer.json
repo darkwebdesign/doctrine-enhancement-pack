@@ -1,0 +1,31 @@
+{
+    "name": "darkwebdesign/doctrine-enhanced-repositories",
+    "type": "library",
+    "description": "Doctrine Enhanced Repositories",
+    "keywords": ["doctrine", "repositories"],
+    "homepage": "http://www.darkwebdesign.nl/",
+    "license": "MIT",
+    "authors": [
+        {"name": "Raymond Schouten"}
+    ],
+    "require": {
+        "php": ">=5.3.9"
+    },
+    "require-dev": {
+        "codeclimate/php-test-reporter": "^0.3.2",
+        "phpunit/phpunit": "^4.8"
+    },
+    "suggest": {
+        "darkwebdesign/doctrine-enhancement-pack": "All Doctrine enhancements bundled together"
+    },
+    "autoload": {
+        "psr-4": {
+            "DarkWebDesign\\DoctrineEnhanced\\Repository\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DarkWebDesign\\DoctrineEnhanced\\Event\\Repository\\": "tests/"
+        }
+    }
+}
