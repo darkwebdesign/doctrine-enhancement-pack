@@ -21,7 +21,6 @@
 namespace DarkWebDesign\DoctrineEnhanced\Event\Tests;
 
 use DarkWebDesign\DoctrineUnitTesting\OrmFunctionalTestCase as BaseOrmFunctionalTestCase;
-use Doctrine\Common\ClassLoader;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Loader;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
