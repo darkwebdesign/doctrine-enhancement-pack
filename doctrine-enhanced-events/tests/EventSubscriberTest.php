@@ -22,14 +22,13 @@ namespace DarkWebDesign\DoctrineEnhanced\Event\Tests;
 
 use DarkWebDesign\DoctrineEnhanced\Event\EventSubscriber;
 use DarkWebDesign\DoctrineEnhanced\Event\UpdateEventArgs;
-use DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson;
 
 class EventSubscriberTest extends OrmFunctionalTestCase
 {
     /** @var \DarkWebDesign\DoctrineEnhanced\Event\Tests\Mocks\EventSubscriberMock|\PHPUnit_Framework_MockObject_MockObject */
     private $eventSubscriberMock;
 
-    /** @var \Doctrine\ORM\ObjectRepository */
+    /** @var \Doctrine\ORM\EntityRepository */
     private $repository;
 
     protected function setUp()
