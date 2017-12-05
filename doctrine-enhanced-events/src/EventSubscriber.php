@@ -69,7 +69,7 @@ class EventSubscriber implements DoctrineEventSubscriber
 
         $eventArgs = new UpdateEventArgs($entity, $originalObject, $entityManager);
 
-        $this->eventManager->dispatchEvent(Events::PRE_UPDATE_ENHANCED, $eventArgs);
+        $this->eventManager->dispatchEvent(Events::preUpdateEnhanced, $eventArgs);
 
         $unitOfWork->recomputeSingleEntityChangeSet($classMetaData, $entity);
     }
@@ -87,7 +87,7 @@ class EventSubscriber implements DoctrineEventSubscriber
 
         $eventArgs = new UpdateEventArgs($entity, $originalEntity, $entityManager);
 
-        $this->eventManager->dispatchEvent(Events::POST_UPDATE_ENHANCED, $eventArgs);
+        $this->eventManager->dispatchEvent(Events::postUpdateEnhanced, $eventArgs);
     }
 
     /**

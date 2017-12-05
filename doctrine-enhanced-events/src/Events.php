@@ -27,6 +27,6 @@ namespace DarkWebDesign\DoctrineEnhanced\Event;
  */
 class Events
 {
-    const PRE_UPDATE_ENHANCED = 'preUpdateEnhanced';
-    const POST_UPDATE_ENHANCED = 'postUpdateEnhanced';
+    const preUpdateEnhanced = 'preUpdateEnhanced';
+    const postUpdateEnhanced = 'postUpdateEnhanced';
 }
