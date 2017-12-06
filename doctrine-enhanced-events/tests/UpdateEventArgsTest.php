@@ -20,59 +20,31 @@
 
 namespace DarkWebDesign\DoctrineEnhanced\Event\Tests;
 
-use DarkWebDesign\DoctrineEnhanced\Event\EventSubscriber;
 use DarkWebDesign\DoctrineEnhanced\Event\UpdateEventArgs;
 
-class UpdateEventArgsTest extends OrmFunctionalTestCase
+class UpdateEventArgsTest extends \PHPUnit_Framework_TestCase
 {
-    /** @var \Doctrine\ORM\EntityRepository */
-    private $repository;
+    /** @var \DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson|\PHPUnit_Framework_MockObject_MockObject */
+    private $entity;
 
-    /** @var \DarkWebDesign\DoctrineEnhanced\Event\Tests\Mocks\EventSubscriberMock|\PHPUnit_Framework_MockObject_MockObject */
-    private $eventSubscriberMock;
+    /** @var \DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson|\PHPUnit_Framework_MockObject_MockObject */
+    private $originalEntity;
+
+    /** @var \Doctrine\Common\Persistence\ObjectManager|\PHPUnit_Framework_MockObject_MockObject */
+    private $objectManager;
 
     protected function setUp()
     {
-        $this->useModelSet('company');
-        $this->useFixtureSet('company');
-
-        parent::setUp();
-
-        $this->repository = $this->_em->getRepository('DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson');
-
-        $this->eventSubscriberMock = $this->getMock('DarkWebDesign\DoctrineEnhanced\Event\Tests\Mocks\EventSubscriberMock', array('preUpdateEnhanced', 'postUpdateEnhanced'));
-
-        $eventManager = static::$_sharedConn->getEventManager();
-        $eventManager->addEventSubscriber(new EventSubscriber($eventManager));
-        $eventManager->addEventSubscriber($this->eventSubscriberMock);
+        $this->entity = $this->getMock('DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson');
+        $this->originalEntity = $this->getMock('DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson');
+        $this->objectManager = $this->getMock('Doctrine\Common\Persistence\ObjectManager');
     }
 
     public function testGetters()
     {
-        $entity = $this->repository->findOneByName('Danielle Murphy');
-        $entity->setName('Danielle Sanders-Murphy');
+        $updateEventArgs = new UpdateEventArgs($this->entity, $this->originalEntity, $this->objectManager);
 
-        $_this = $this;
-
-        $assertGetters = function (UpdateEventArgs $args) use ($_this) {
-            $_this->assertSame('Danielle Murphy', $args->getOriginalEntity()->getName());
-            $_this->assertSame('Danielle Sanders-Murphy', $args->getEntity()->getName());
-            $_this->assertSame($args->getOriginalEntity(), $args->getOriginalObject());
-
-            return true;
-        };
-
-        $this->eventSubscriberMock
-            ->expects($this->once())
-            ->method('preUpdateEnhanced')
-            ->with($this->callback($assertGetters));
-
-        $this->eventSubscriberMock
-            ->expects($this->once())
-            ->method('postUpdateEnhanced')
-            ->with($this->callback($assertGetters));
-
-        $this->_em->persist($entity);
-        $this->_em->flush($entity);
+        $this->assertSame($this->originalEntity, $updateEventArgs->getOriginalEntity());
+        $this->assertSame($this->originalEntity, $updateEventArgs->getOriginalObject());
     }
 }
