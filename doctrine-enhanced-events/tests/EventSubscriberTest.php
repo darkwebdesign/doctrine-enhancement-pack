@@ -25,11 +25,11 @@ use DarkWebDesign\DoctrineEnhanced\Event\UpdateEventArgs;
 
 class EventSubscriberTest extends OrmFunctionalTestCase
 {
-    /** @var \DarkWebDesign\DoctrineEnhanced\Event\Tests\Mocks\EventSubscriberMock|\PHPUnit_Framework_MockObject_MockObject */
-    private $eventSubscriberMock;
-
     /** @var \Doctrine\ORM\EntityRepository */
     private $repository;
+
+    /** @var \DarkWebDesign\DoctrineEnhanced\Event\Tests\Mocks\EventSubscriberMock|\PHPUnit_Framework_MockObject_MockObject */
+    private $eventSubscriberMock;
 
     protected function setUp()
     {
