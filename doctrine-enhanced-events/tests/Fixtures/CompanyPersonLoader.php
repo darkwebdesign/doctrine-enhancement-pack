@@ -18,7 +18,7 @@
  * SOFTWARE.
  */
 
-namespace DarkWebDesign\DoctrineEnhanced\Event\Tests\Fixtures;
+namespace DarkWebDesign\DoctrineEnhancedEvents\Tests\Fixtures;
 
 use DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson;
 use Doctrine\Common\DataFixtures\FixtureInterface;

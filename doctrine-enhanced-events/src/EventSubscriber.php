@@ -18,7 +18,7 @@
  * SOFTWARE.
  */
 
-namespace DarkWebDesign\DoctrineEnhanced\Event;
+namespace DarkWebDesign\DoctrineEnhancedEvents;
 
 use Doctrine\Common\EventManager;
 use Doctrine\Common\EventSubscriber as DoctrineEventSubscriber;

@@ -18,7 +18,7 @@
  * SOFTWARE.
  */
 
-namespace DarkWebDesign\DoctrineEnhanced\Event\Tests;
+namespace DarkWebDesign\DoctrineEnhancedEvents\Tests;
 
 use DarkWebDesign\DoctrineUnitTesting\OrmFunctionalTestCase as BaseOrmFunctionalTestCase;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
@@ -33,7 +33,7 @@ class OrmFunctionalTestCase extends BaseOrmFunctionalTestCase
     /** @var array */
     protected $fixtureSets = array(
         'company' => array(
-            'DarkWebDesign\DoctrineEnhanced\Event\Tests\Fixtures\CompanyPersonLoader',
+            'DarkWebDesign\DoctrineEnhancedEvents\Tests\Fixtures\CompanyPersonLoader',
         ),
     );
 

@@ -25,14 +25,14 @@
     },
     "autoload": {
         "psr-4": {
-            "DarkWebDesign\\DoctrineEnhanced\\Event\\": "doctrine-enhanced-events/src/",
-            "DarkWebDesign\\DoctrineEnhanced\\Repository\\": "doctrine-enhanced-repositories/src/"
+            "DarkWebDesign\\DoctrineEnhancedEvents\\": "doctrine-enhanced-events/src/",
+            "DarkWebDesign\\DoctrineEnhancedRepositories\\": "doctrine-enhanced-repositories/src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "DarkWebDesign\\DoctrineEnhanced\\Event\\Tests\\": "doctrine-enhanced-events/tests/",
-            "DarkWebDesign\\DoctrineEnhanced\\Repository\\Tests\\": "doctrine-enhanced-repositories/tests/"
+            "DarkWebDesign\\DoctrineEnhancedEvents\\Tests\\": "doctrine-enhanced-events/tests/",
+            "DarkWebDesign\\DoctrineEnhancedRepositories\\Tests\\": "doctrine-enhanced-repositories/tests/"
         }
     }
 }

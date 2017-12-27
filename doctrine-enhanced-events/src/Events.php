@@ -18,7 +18,7 @@
  * SOFTWARE.
  */
 
-namespace DarkWebDesign\DoctrineEnhanced\Event;
+namespace DarkWebDesign\DoctrineEnhancedEvents;
 
 /**
  * @author Raymond Schouten

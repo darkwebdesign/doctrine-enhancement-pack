@@ -18,17 +18,17 @@
  * SOFTWARE.
  */
 
-namespace DarkWebDesign\DoctrineEnhanced\Event\Tests;
+namespace DarkWebDesign\DoctrineEnhancedEvents\Tests;
 
-use DarkWebDesign\DoctrineEnhanced\Event\EventSubscriber;
-use DarkWebDesign\DoctrineEnhanced\Event\UpdateEventArgs;
+use DarkWebDesign\DoctrineEnhancedEvents\EventSubscriber;
+use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs;
 
 class EventSubscriberTest extends OrmFunctionalTestCase
 {
     /** @var \Doctrine\ORM\EntityRepository */
     private $repository;
 
-    /** @var \DarkWebDesign\DoctrineEnhanced\Event\Tests\Mocks\EventSubscriberMock|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var \DarkWebDesign\DoctrineEnhancedEvents\Tests\Mocks\EventSubscriberMock|\PHPUnit_Framework_MockObject_MockObject */
     private $eventSubscriberMock;
 
     protected function setUp()
@@ -40,7 +40,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         $this->repository = $this->_em->getRepository('DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson');
 
-        $this->eventSubscriberMock = $this->getMock('DarkWebDesign\DoctrineEnhanced\Event\Tests\Mocks\EventSubscriberMock', array('preUpdateEnhanced', 'postUpdateEnhanced'));
+        $this->eventSubscriberMock = $this->getMock('DarkWebDesign\DoctrineEnhancedEvents\Tests\Mocks\EventSubscriberMock', array('preUpdateEnhanced', 'postUpdateEnhanced'));
 
         $eventManager = static::$_sharedConn->getEventManager();
         $eventManager->addEventSubscriber(new EventSubscriber($eventManager));

@@ -18,9 +18,9 @@
  * SOFTWARE.
  */
 
-namespace DarkWebDesign\DoctrineEnhanced\Event\Tests;
+namespace DarkWebDesign\DoctrineEnhancedEvents\Tests;
 
-use DarkWebDesign\DoctrineEnhanced\Event\UpdateEventArgs;
+use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs;
 
 class UpdateEventArgsTest extends \PHPUnit_Framework_TestCase
 {

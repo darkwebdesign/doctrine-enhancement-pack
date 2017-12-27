@@ -18,23 +18,23 @@
  * SOFTWARE.
  */
 
-namespace DarkWebDesign\DoctrineEnhanced\Event\Tests\Mocks;
+namespace DarkWebDesign\DoctrineEnhancedEvents\Tests\Mocks;
 
-use DarkWebDesign\DoctrineEnhanced\Event\Events;
-use DarkWebDesign\DoctrineEnhanced\Event\UpdateEventArgs;
+use DarkWebDesign\DoctrineEnhancedEvents\Events;
+use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs;
 use Doctrine\Common\EventSubscriber;
 
 class EventSubscriberMock implements EventSubscriber
 {
     /**
-     * @param \DarkWebDesign\DoctrineEnhanced\Event\UpdateEventArgs $args
+     * @param \DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs $args
      */
     public function preUpdateEnhanced(UpdateEventArgs $args)
     {
     }
 
     /**
-     * @param \DarkWebDesign\DoctrineEnhanced\Event\UpdateEventArgs $args
+     * @param \DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs $args
      */
     public function postUpdateEnhanced(UpdateEventArgs $args)
     {

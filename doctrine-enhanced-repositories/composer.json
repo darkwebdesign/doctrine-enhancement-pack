@@ -20,12 +20,12 @@
     },
     "autoload": {
         "psr-4": {
-            "DarkWebDesign\\DoctrineEnhanced\\Repository\\": "src/"
+            "DarkWebDesign\\DoctrineEnhancedRepositories\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "DarkWebDesign\\DoctrineEnhanced\\Event\\Repository\\": "tests/"
+            "DarkWebDesign\\DoctrineEnhancedRepositories\\Tests\\": "tests/"
         }
     }
 }
