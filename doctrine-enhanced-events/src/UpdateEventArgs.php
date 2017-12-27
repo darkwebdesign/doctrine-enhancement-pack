@@ -26,7 +26,7 @@ use Doctrine\ORM\Event\LifecycleEventArgs;
 /**
  * @author Raymond Schouten
  *
- * @since 2.2
+ * @since 2.4
  */
 class UpdateEventArgs extends LifecycleEventArgs
 {

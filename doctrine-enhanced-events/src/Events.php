@@ -23,7 +23,7 @@ namespace DarkWebDesign\DoctrineEnhancedEvents;
 /**
  * @author Raymond Schouten
  *
- * @since 2.2
+ * @since 2.4
  */
 class Events
 {

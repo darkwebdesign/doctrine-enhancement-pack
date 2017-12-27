@@ -29,7 +29,7 @@ use Doctrine\ORM\Events as DoctrineEvents;
 /**
  * @author Raymond Schouten
  *
- * @since 2.2
+ * @since 2.4
  */
 class EventSubscriber implements DoctrineEventSubscriber
 {
