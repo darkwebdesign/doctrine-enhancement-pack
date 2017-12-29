@@ -20,15 +20,7 @@ A basic event listener can be defined by listening to the `preUpdateEnhanced` an
 ```php
 use DarkWebDesign\DoctrineEnhancedEvents\Events as EnhancedEvents;
 
-$eventManager->addEventListener(
-    array(
-        EnhancedEvents::preUpdateEnhanced,
-        EnhancedEvents::postUpdateEnhanced,
-    ),
-    new MyEventListener()
-);
-
-class MyEventListener
+class TestEventListener
 {
     public function preUpdateEnhanced()
     {
@@ -40,6 +32,14 @@ class MyEventListener
         // ...
     }
 }
+
+$eventManager->addEventListener(
+    array(
+        EnhancedEvents::preUpdateEnhanced,
+        EnhancedEvents::postUpdateEnhanced,
+    ),
+    new TestEventListener()
+);
 ```
 
 A basic event subscriber can be defined by subscribing to the `preUpdateEnhanced` and `postUpdateEnhanced` events.
@@ -68,6 +68,8 @@ class TestEventSubscriber implements EventSubscriber
         );
     }
 }
+
+$eventManager->addEventSubscriber(new TestEventSubscriber());
 ```
 
 Via the `EnhancedUpdateEventArgs` you have access to the original entity, which can be used to compare changes.
