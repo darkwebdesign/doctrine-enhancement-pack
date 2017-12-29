@@ -47,6 +47,8 @@ class TestEventSubscriber implements EventSubscriber
 Via the `EnhancedUpdateEventArgs` you have access to the original entity, which can be used to compare changes.
 
 ```php
+use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs as EnhancedUpdateEventArgs;
+
 class MyEventListener
 {
     public function preUpdateEnhanced(EnhancedUpdateEventArgs $event)
@@ -65,6 +67,8 @@ The updated entity can be changed via the `preUpdateEnhanced` event. The changes
 event. Only properties of the updated entity itself can be changed, changed properties of relations are ignored.
 
 ```php
+use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs as EnhancedUpdateEventArgs;
+
 class MyEventListener
 {
     public function preUpdateEnhanced(EnhancedUpdateEventArgs $event)
