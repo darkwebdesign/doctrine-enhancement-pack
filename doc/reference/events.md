@@ -15,21 +15,47 @@ $eventManager = new EventManager();
 $eventManager->addEventSubscriber(new EnhancedEventsSubscriber());
 ```
 
-A basic event subscriber can be defined by subscribing to the `preUpdateEnhanced` and `postUpdateEnhanced` events.
+A basic event listener can be defined by listening to the `preUpdateEnhanced` and `postUpdateEnhanced` events.
 
 ```php
 use DarkWebDesign\DoctrineEnhancedEvents\Events as EnhancedEvents;
-use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs as EnhancedUpdateEventArgs;
-use Doctrine\Common\EventSubscriber;
 
-class TestEventSubscriber implements EventSubscriber
+$eventManager->addEventListener(
+    array(
+        EnhancedEvents::preUpdateEnhanced,
+        EnhancedEvents::postUpdateEnhanced,
+    ),
+    new MyEventListener()
+);
+
+class MyEventListener
 {
-    public function preUpdateEnhanced(EnhancedUpdateEventArgs $event)
+    public function preUpdateEnhanced()
     {
         // ...
     }
 
-    public function postUpdateEnhanced(EnhancedUpdateEventArgs $event)
+    public function postUpdateEnhanced()
+    {
+        // ...
+    }
+}
+```
+
+A basic event subscriber can be defined by subscribing to the `preUpdateEnhanced` and `postUpdateEnhanced` events.
+
+```php
+use DarkWebDesign\DoctrineEnhancedEvents\Events as EnhancedEvents;
+use Doctrine\Common\EventSubscriber;
+
+class TestEventSubscriber implements EventSubscriber
+{
+    public function preUpdateEnhanced()
+    {
+        // ...
+    }
+
+    public function postUpdateEnhanced()
     {
         // ...
     }
