@@ -9,14 +9,12 @@
     <testsuites>
         <testsuite name="DarkWeb Design Doctrine Enhancement Pack Test Suite">
             <directory>doctrine-enhanced-events/tests</directory>
-            <directory>doctrine-enhanced-repositories/tests</directory>
         </testsuite>
     </testsuites>
 
     <filter>
         <whitelist>
             <directory>doctrine-enhanced-events/src</directory>
-            <directory>doctrine-enhanced-repositories/src</directory>
         </whitelist>
     </filter>
 

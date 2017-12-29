@@ -2,7 +2,7 @@
     "name": "darkwebdesign/doctrine-enhancement-pack",
     "type": "library",
     "description": "Doctrine Enhancement Pack",
-    "keywords": ["doctrine", "events", "repositories"],
+    "keywords": ["doctrine", "events"],
     "homepage": "http://www.darkwebdesign.nl/",
     "license": "MIT",
     "authors": [
@@ -20,19 +20,16 @@
         "phpunit/phpunit": "^4.8"
     },
     "replace": {
-        "darkwebdesign/doctrine-enhanced-events": "self.version",
-        "darkwebdesign/doctrine-enhanced-repositories": "self.version"
+        "darkwebdesign/doctrine-enhanced-events": "self.version"
     },
     "autoload": {
         "psr-4": {
-            "DarkWebDesign\\DoctrineEnhancedEvents\\": "doctrine-enhanced-events/src/",
-            "DarkWebDesign\\DoctrineEnhancedRepositories\\": "doctrine-enhanced-repositories/src/"
+            "DarkWebDesign\\DoctrineEnhancedEvents\\": "doctrine-enhanced-events/src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "DarkWebDesign\\DoctrineEnhancedEvents\\Tests\\": "doctrine-enhanced-events/tests/",
-            "DarkWebDesign\\DoctrineEnhancedRepositories\\Tests\\": "doctrine-enhanced-repositories/tests/"
+            "DarkWebDesign\\DoctrineEnhancedEvents\\Tests\\": "doctrine-enhanced-events/tests/"
         }
     }
 }
