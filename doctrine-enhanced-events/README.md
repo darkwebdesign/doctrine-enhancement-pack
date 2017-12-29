@@ -17,7 +17,7 @@ Learn more about it in its [documentation](https://github.com/darkwebdesign/symf
 
 * Access to the original entity in the `pre-update` and `post-update` lifecycle event.
 * Modifying via updated entity itself (instead of via "change set" array) in the `pre-update` lifecycle event.
-* Modifications to the updated entity in the `pre-update` lifecycle event automatically triggers recomputing of "change set".
+* After modifying the updated entity in the `pre-update` lifecycle event the "change set" is recomputed automatically.
 
 ## Installing via Composer
 
