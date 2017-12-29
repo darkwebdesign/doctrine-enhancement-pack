@@ -11,7 +11,7 @@
 
 Doctrine Enhanced Events offers enhanced versions of the original Doctrine (lifecycle) events.
 
-Learn more about it in its [documentation](https://github.com/darkwebdesign/doctrine-enhancement-pack/blob/2.4/doc/reference/events/index.md).
+Learn more about it in its [documentation](https://github.com/darkwebdesign/doctrine-enhancement-pack/blob/2.4/doc/reference/events.md).
 
 ## Features
 
