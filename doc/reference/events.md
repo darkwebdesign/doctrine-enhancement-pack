@@ -4,30 +4,32 @@ Events
 
 # Events
 
-In order to be able to use the enhanced events, you have to register the Doctrine Enhanced Events event subcriber to the
-event manager.
+## Enabling enhanced events
+
+In order to use the enhanced events, you have to register the Doctrine Enhanced Events event subscriber to the
+EventManager that is passed to the EntityManager factory.
 
 ```php
 use DarkWebDesign\DoctrineEnhancedEvents\EventSubscriber as EnhancedEventsSubscriber;
-use Doctrine\Common\EventManager;
 
 $eventManager = new EventManager();
 $eventManager->addEventSubscriber(new EnhancedEventsSubscriber());
+
+$entityManager = EntityManager::create($connection, $config, $eventManager);
 ```
 
-A basic event listener can be defined by listening to the `preUpdateEnhanced` and `postUpdateEnhanced` events.
+You can also retrieve the event manager instance after the EntityManager was created.
 
 ```php
-use DarkWebDesign\DoctrineEnhancedEvents\Events as EnhancedEvents;
+use DarkWebDesign\DoctrineEnhancedEvents\EventSubscriber as EnhancedEventsSubscriber;
 
-$eventManager->addEventListener(
-    array(
-        EnhancedEvents::preUpdateEnhanced,
-        EnhancedEvents::postUpdateEnhanced,
-    ),
-    new MyEventListener()
-);
+$eventManager = $entityManager->getEventManager();
+$eventManager->addEventSubscriber(new EnhancedEventsSubscriber());
 ```
+
+## Listening and subscribing to enhanced events
+
+A basic lifecycle event listener can be defined and registered as follows.
 
 ```php
 class MyEventListener
@@ -44,11 +46,19 @@ class MyEventListener
 }
 ```
 
-A basic event subscriber can be defined by subscribing to the `preUpdateEnhanced` and `postUpdateEnhanced` events.
-
 ```php
-$eventManager->addEventSubscriber(new MyEventSubscriber());
+use DarkWebDesign\DoctrineEnhancedEvents\Events as EnhancedEvents;
+
+$eventManager->addEventListener(
+    array(
+        EnhancedEvents::preUpdateEnhanced,
+        EnhancedEvents::postUpdateEnhanced,
+    ),
+    new MyEventListener()
+);
 ```
+
+A basic lifecycle event subscriber can be defined and registered as follows.
 
 ```php
 use DarkWebDesign\DoctrineEnhancedEvents\Events as EnhancedEvents;
@@ -75,6 +85,12 @@ class MyEventSubscriber implements EventSubscriber
     }
 }
 ```
+
+```php
+$eventManager->addEventSubscriber(new MyEventSubscriber());
+```
+
+## preUpdateEnhanced, postUpdateEnhanced
 
 Via the `EnhancedUpdateEventArgs` you have access to the original entity, which can be used to compare changes.
 
