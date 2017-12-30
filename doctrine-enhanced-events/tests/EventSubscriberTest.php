@@ -43,7 +43,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->eventSubscriberMock = $this->getMock('DarkWebDesign\DoctrineEnhancedEvents\Tests\Mocks\EventSubscriberMock', array('preUpdateEnhanced', 'postUpdateEnhanced'));
 
         $eventManager = static::$_sharedConn->getEventManager();
-        $eventManager->addEventSubscriber(new EventSubscriber($eventManager));
+        $eventManager->addEventSubscriber(new EventSubscriber());
         $eventManager->addEventSubscriber($this->eventSubscriberMock);
     }
 
