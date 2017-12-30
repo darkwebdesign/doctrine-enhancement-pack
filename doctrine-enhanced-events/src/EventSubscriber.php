@@ -20,7 +20,6 @@
 
 namespace DarkWebDesign\DoctrineEnhancedEvents;
 
-use Doctrine\Common\EventManager;
 use Doctrine\Common\EventSubscriber as DoctrineEventSubscriber;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
@@ -33,19 +32,8 @@ use Doctrine\ORM\Events as DoctrineEvents;
  */
 class EventSubscriber implements DoctrineEventSubscriber
 {
-    /** @var \Doctrine\Common\EventManager */
-    private $eventManager;
-
     /** @var object[] */
     private $originalEntities = array();
-
-    /**
-     * @param \Doctrine\Common\EventManager $eventManager
-     */
-    public function __construct(EventManager $eventManager)
-    {
-        $this->eventManager = $eventManager;
-    }
 
     /**
      * @param \Doctrine\ORM\Event\PreUpdateEventArgs $eventArgs
@@ -58,6 +46,7 @@ class EventSubscriber implements DoctrineEventSubscriber
         $unitOfWork = $entityManager->getUnitOfWork();
         $className = get_class($entity);
         $classMetaData = $entityManager->getClassMetadata($className);
+        $eventManager = $entityManager->getEventManager();
 
         $originalObject = clone $entity;
 
@@ -69,7 +58,7 @@ class EventSubscriber implements DoctrineEventSubscriber
 
         $eventArgs = new UpdateEventArgs($entity, $originalObject, $entityManager);
 
-        $this->eventManager->dispatchEvent(Events::preUpdateEnhanced, $eventArgs);
+        $eventManager->dispatchEvent(Events::preUpdateEnhanced, $eventArgs);
 
         $unitOfWork->recomputeSingleEntityChangeSet($classMetaData, $entity);
     }
@@ -82,12 +71,13 @@ class EventSubscriber implements DoctrineEventSubscriber
         $entity = $eventArgs->getObject();
         $originalEntity = $this->originalEntities[spl_object_hash($entity)];
         $entityManager = $eventArgs->getEntityManager();
+        $eventManager = $entityManager->getEventManager();
 
         unset($this->originalEntities[spl_object_hash($entity)]);
 
         $eventArgs = new UpdateEventArgs($entity, $originalEntity, $entityManager);
 
-        $this->eventManager->dispatchEvent(Events::postUpdateEnhanced, $eventArgs);
+        $eventManager->dispatchEvent(Events::postUpdateEnhanced, $eventArgs);
     }
 
     /**
