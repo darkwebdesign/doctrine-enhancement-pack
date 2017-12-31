@@ -6,8 +6,8 @@
 
 [![Build Status](https://travis-ci.org/darkwebdesign/doctrine-enhanced-events.svg?branch=2.5)](https://travis-ci.org/darkwebdesign/doctrine-enhanced-events?branch=2.5)
 [![Coverage Status](https://codecov.io/gh/darkwebdesign/doctrine-enhanced-events/branch/2.5/graph/badge.svg)](https://codecov.io/gh/darkwebdesign/doctrine-enhanced-events)
-[![Minimum PHP Version](https://img.shields.io/badge/php-%3E%3D%205.3-777BB3.svg)](https://php.net/)
-[![Minimum Doctrine Version](https://img.shields.io/badge/doctrine-%3E%3D%202.4-2E6BC8.svg)](http://www.doctrine-project.org/)
+[![PHP Version](https://img.shields.io/badge/php-5.4%2B-777BB3.svg)](https://php.net/)
+[![Doctrine Version](https://img.shields.io/badge/doctrine-2.5-2E6BC8.svg)](http://www.doctrine-project.org/)
 
 Doctrine Enhanced Events offers enhanced versions of the original Doctrine (lifecycle) events.
 
