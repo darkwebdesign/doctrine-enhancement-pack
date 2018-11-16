@@ -26,7 +26,7 @@ use Doctrine\ORM\Event\OnFlushEventArgs;
 /**
  * @author Raymond Schouten
  *
- * @since 2.6
+ * @since 2.4
  */
 class FlushEventArgs extends OnFlushEventArgs
 {
