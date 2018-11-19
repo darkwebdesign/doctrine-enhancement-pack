@@ -29,4 +29,6 @@ class Events
 {
     const preUpdateEnhanced = 'preUpdateEnhanced';
     const postUpdateEnhanced = 'postUpdateEnhanced';
+    const onFlushEnhanced = 'onFlushEnhanced';
+    const postFlushEnhanced = 'postFlushEnhanced';
 }
