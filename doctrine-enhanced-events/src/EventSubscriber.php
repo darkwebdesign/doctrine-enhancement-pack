@@ -73,9 +73,6 @@ class EventSubscriber implements DoctrineEventSubscriber
             $this->entityUpdates[$objectHash] = array($originalEntity, $entity);
         }
 
-        // relations updates?
-        // nested flush?
-
         $eventArgs = new FlushEventArgs($this->entityInsertions, $this->entityUpdates, $this->entityDeletions, $entityManager);
 
         $eventManager->dispatchEvent(Events::onFlushEnhanced, $eventArgs);
