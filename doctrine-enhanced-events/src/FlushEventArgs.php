@@ -20,7 +20,7 @@
 
 namespace DarkWebDesign\DoctrineEnhancedEvents;
 
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 
 /**
@@ -43,9 +43,9 @@ class FlushEventArgs extends OnFlushEventArgs
      * @param array $entityInsertions
      * @param array $entityUpdates
      * @param array $entityDeletions
-     * @param \Doctrine\ORM\EntityManagerInterface $entityManager
+     * @param \Doctrine\ORM\EntityManager $entityManager
      */
-    public function __construct(array $entityInsertions, array $entityUpdates, array $entityDeletions, EntityManagerInterface $entityManager)
+    public function __construct(array $entityInsertions, array $entityUpdates, array $entityDeletions, EntityManager $entityManager)
     {
         parent::__construct($entityManager);
 
