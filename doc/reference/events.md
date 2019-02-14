@@ -34,12 +34,22 @@ A basic lifecycle event listener can be defined and registered as follows.
 ```php
 class MyEventListener
 {
+    public function onUpdateEnhanced()
+    {
+        // ...
+    }
+
     public function preUpdateEnhanced()
     {
         // ...
     }
 
     public function postUpdateEnhanced()
+    {
+        // ...
+    }
+
+    public function postFlushEnhanced()
     {
         // ...
     }
@@ -50,10 +60,12 @@ class MyEventListener
 use DarkWebDesign\DoctrineEnhancedEvents\Events as EnhancedEvents;
 
 $eventManager->addEventListener(
-    array(
+    [
+        EnhancedEvents::onFlushEnhanced,
         EnhancedEvents::preUpdateEnhanced,
         EnhancedEvents::postUpdateEnhanced,
-    ),
+        EnhancedEvents::postFlushEnhanced,
+    ],
     new MyEventListener()
 );
 ```
@@ -66,6 +78,11 @@ use Doctrine\Common\EventSubscriber;
 
 class MyEventSubscriber implements EventSubscriber
 {
+    public function onUpdateEnhanced()
+    {
+        // ...
+    }
+
     public function preUpdateEnhanced()
     {
         // ...
@@ -76,12 +93,19 @@ class MyEventSubscriber implements EventSubscriber
         // ...
     }
 
+    public function postFlushEnhanced()
+    {
+        // ...
+    }
+
     public function getSubscribedEvents()
     {
-        return array(
+        return [
+            EnhancedEvents::onFlushEnhanced,
             EnhancedEvents::preUpdateEnhanced,
             EnhancedEvents::postUpdateEnhanced,
-        );
+            EnhancedEvents::postFlushEnhanced,
+        ];
     }
 }
 ```
@@ -123,6 +147,74 @@ class MyEventListener
     {
         $entity = $event->getEntity();
         $entity->setModifiedAt(new \DateTime());
+    }
+}
+```
+
+## onFlushEnhanced, postFlushEnhanced
+
+Via the `EnhancedFlushEventArgs` you have access to the created, updated (including original entities, which can be used to
+compare changes) and deleted entities.
+
+```php
+use DarkWebDesign\DoctrineEnhancedEvents\FlushEventArgs as EnhancedFlushEventArgs;
+
+class MyEventListener
+{
+    public function onFlushEnhanced(EnhancedFlushEventArgs $event)
+    {
+        foreach ($event->getEntityUpdates() as $entityUpdate) {
+            list ($originalEntity, $entity) = $entityUpdate;
+
+            if ($entity->getUsername() !== $originalEntity->getUsername()) {
+                // Do something when the username is changed.
+            }
+        }
+    }
+}
+```
+
+The created, updated and deleted entities can be changed via the `onFlushEnhanced` event. The changes will be automatically
+persisted after the event. Only properties of the entities itself can be changed, changed properties of relations are
+ignored.
+
+```php
+use DarkWebDesign\DoctrineEnhancedEvents\FlushEventArgs as EnhancedFlushEventArgs;
+
+class MyEventListener
+{
+    public function onFlushEnhanced(EnhancedFlushEventArgs $event)
+    {
+        foreach ($event->getEntityUpdates() as $entityUpdate) {
+            list ($originalEntity, $entity) = $entityUpdate;
+
+            $entity->setModifiedAt(new \DateTime());
+        }
+    }
+}
+```
+
+In case you want to update an entity that was not yet managed during the initial `onFlushEnhanced` event, you need to manually
+recompute the entity changeset in order to include the entity changes in the same transaction.
+
+```php
+use DarkWebDesign\DoctrineEnhancedEvents\FlushEventArgs as EnhancedFlushEventArgs;
+
+class MyEventListener
+{
+    public function onFlushEnhanced(EnhancedFlushEventArgs $event)
+    {
+        $entityManager = $event->getEntityManager();
+        $entityRepository = $entityManager->getRepository('App\Entity\MyEntity');
+
+        $entity = $entityRepository->find(1);
+        $entity->setModifiedAt(new \DateTime());
+
+        $entityManager->persist($entity);
+
+        $classMetaData = $entityManager->getClassMetadata('App\Entity\MyEntity');
+        $unitOfWork = $entityManager->getUnitOfWork();
+        $unitOfWork->recomputeSingleEntityChangeSet($classMetaData, $entity);
     }
 }
 ```
