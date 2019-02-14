@@ -21,7 +21,7 @@
 namespace DarkWebDesign\DoctrineEnhancedEvents;
 
 use Doctrine\Common\EventSubscriber as DoctrineEventSubscriber;
-use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
@@ -130,9 +130,9 @@ class EventSubscriber implements DoctrineEventSubscriber
     }
 
     /**
-     * @param \Doctrine\ORM\EntityManagerInterface $entityManager
+     * @param \Doctrine\ORM\EntityManager $entityManager
      */
-    private function cacheContext(EntityManagerInterface $entityManager)
+    private function cacheContext(EntityManager $entityManager)
     {
         $unitOfWork = $entityManager->getUnitOfWork();
 
@@ -150,10 +150,10 @@ class EventSubscriber implements DoctrineEventSubscriber
     }
 
     /**
-     * @param \Doctrine\ORM\EntityManagerInterface $entityManager
+     * @param \Doctrine\ORM\EntityManager $entityManager
      * @param object $entity
      */
-    private function addEntityUpdate(EntityManagerInterface $entityManager, $entity)
+    private function addEntityUpdate(EntityManager $entityManager, $entity)
     {
         $objectHash = spl_object_hash($entity);
         $originalEntity = $this->getOriginalEntity($entityManager, $entity);
@@ -161,12 +161,12 @@ class EventSubscriber implements DoctrineEventSubscriber
     }
 
     /**
-     * @param \Doctrine\ORM\EntityManagerInterface $entityManager
+     * @param \Doctrine\ORM\EntityManager $entityManager
      * @param object $entity
      *
      * @return object
      */
-    private function getOriginalEntity(EntityManagerInterface $entityManager, $entity)
+    private function getOriginalEntity(EntityManager $entityManager, $entity)
     {
         $unitOfWork = $entityManager->getUnitOfWork();
         $entityChangeSet = $unitOfWork->getEntityChangeSet($entity);
@@ -184,12 +184,12 @@ class EventSubscriber implements DoctrineEventSubscriber
     }
 
     /**
-     * @param \Doctrine\ORM\EntityManagerInterface $entityManager
+     * @param \Doctrine\ORM\EntityManager $entityManager
      * @param object $entity
      *
      * @return bool
      */
-    private function computeChangeSet(EntityManagerInterface $entityManager, $entity)
+    private function computeChangeSet(EntityManager $entityManager, $entity)
     {
         $unitOfWork = $entityManager->getUnitOfWork();
 
