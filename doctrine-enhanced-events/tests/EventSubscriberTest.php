@@ -164,34 +164,27 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNotNull($danielleSandersMurphy);
     }
 
-    public function testModifyEntityOnFlush()
+    public function testUpdateEntityInsertionOnFlush()
     {
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
-        $danielleMurphy->setName('Danielle Sanders-Murphy');
+        $zoeyPorter = new CompanyPerson();
+        $zoeyPorter->setName('Zoey Porter');
 
-        $modifyEntity = function (FlushEventArgs $args) use ($danielleMurphy) {
-            $entityUpdates = $args->getEntityUpdates();
-            $objectHash = spl_object_hash($danielleMurphy);
-            $entityUpdates[$objectHash][1]->setName('Danielle Sanders');
+        $updateEntity = function (FlushEventArgs $args) use ($zoeyPorter) {
+            $entityInsertions = $args->getEntityInsertions();
+            $objectHash = spl_object_hash($zoeyPorter);
+            $entityInsertions[$objectHash]->setName('Zoey Dawson-Porter');
 
             return true;
         };
 
         $_this = $this;
 
-        $assertUpdateEventArgs = function (UpdateEventArgs $args) use ($_this) {
-            $_this->assertSame('Danielle Sanders', $args->getEntity()->getName());
-
-            return true;
-        };
-
-        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $danielleMurphy) {
-            $entityUpdates = $args->getEntityUpdates();
-            $objectHash = spl_object_hash($danielleMurphy);
-            $_this->assertCount(1, $entityUpdates);
-            $_this->assertArrayHasKey($objectHash, $entityUpdates);
-            $_this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
-            $_this->assertSame('Danielle Sanders', $entityUpdates[$objectHash][1]->getName());
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $zoeyPorter) {
+            $entityInsertions = $args->getEntityInsertions();
+            $objectHash = spl_object_hash($zoeyPorter);
+            $_this->assertCount(1, $entityInsertions);
+            $_this->assertArrayHasKey($objectHash, $entityInsertions);
+            $_this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
 
             return true;
         };
@@ -199,7 +192,104 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->eventSubscriberMock
             ->expects($this->once())
             ->method('onFlushEnhanced')
-            ->with($this->callback($modifyEntity));
+            ->with($this->callback($updateEntity));
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('postFlushEnhanced')
+            ->with($this->callback($assertFlushEventArgs));
+
+        $this->_em->persist($zoeyPorter);
+        $this->_em->flush();
+
+        $this->assertSame('Zoey Dawson-Porter', $zoeyPorter->getName());
+
+        $zoeyPorter = $this->repository->findOneByName('Zoey Porter');
+        $zoeyDawsonPorter = $this->repository->findOneByName('Zoey Dawson-Porter');
+
+        $this->assertNull($zoeyPorter);
+        $this->assertNotNull($zoeyDawsonPorter);
+    }
+
+    public function testRemoveEntityInsertionOnFlush()
+    {
+        $zoeyPorter = new CompanyPerson();
+        $zoeyPorter->setName('Zoey Porter');
+
+        $removeEntity = function (FlushEventArgs $args) use ($zoeyPorter) {
+            $entityManager = $args->getEntityManager();
+            $entityInsertions = $args->getEntityInsertions();
+            $objectHash = spl_object_hash($zoeyPorter);
+            $entityManager->remove($entityInsertions[$objectHash]);
+
+            return true;
+        };
+
+        $_this = $this;
+
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this) {
+            $entityInsertions = $args->getEntityInsertions();
+            $_this->assertEmpty($entityInsertions);
+
+            return true;
+        };
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('onFlushEnhanced')
+            ->with($this->callback($removeEntity));
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('postFlushEnhanced')
+            ->with($this->callback($assertFlushEventArgs));
+
+        $this->_em->persist($zoeyPorter);
+        $this->_em->flush();
+
+        $this->assertSame('Zoey Porter', $zoeyPorter->getName());
+
+        $zoeyPorter = $this->repository->findOneByName('Zoey Porter');
+
+        $this->assertNull($zoeyPorter);
+    }
+
+    public function testUpdateEntityUpdateOnFlush()
+    {
+        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
+        $danielleMurphy->setName('Danielle Sanders-Murphy');
+
+        $updateEntity = function (FlushEventArgs $args) use ($danielleMurphy) {
+            $entityUpdates = $args->getEntityUpdates();
+            $objectHash = spl_object_hash($danielleMurphy);
+            $entityUpdates[$objectHash][1]->setName('Danielle Sanders');
+
+            return true;
+        };
+
+        $_this = $this;
+
+        $assertUpdateEventArgs = function (UpdateEventArgs $args) use ($_this) {
+            $_this->assertSame('Danielle Sanders', $args->getEntity()->getName());
+
+            return true;
+        };
+
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $danielleMurphy) {
+            $entityUpdates = $args->getEntityUpdates();
+            $objectHash = spl_object_hash($danielleMurphy);
+            $_this->assertCount(1, $entityUpdates);
+            $_this->assertArrayHasKey($objectHash, $entityUpdates);
+            $_this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
+            $_this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
+
+            return true;
+        };
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('onFlushEnhanced')
+            ->with($this->callback($updateEntity));
 
         $this->eventSubscriberMock
             ->expects($this->once())
@@ -217,7 +307,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             ->with($this->callback($assertFlushEventArgs));
 
         $this->_em->persist($danielleMurphy);
-        $this->_em->flush($danielleMurphy);
+        $this->_em->flush();
 
         $this->assertSame('Danielle Sanders', $danielleMurphy->getName());
 
@@ -230,12 +320,400 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNotNull($danielleSanders);
     }
 
-    public function testModifyEntityPreUpdate()
+    public function testRemoveEntityUpdateOnFlush()
     {
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
         $danielleMurphy->setName('Danielle Sanders-Murphy');
 
-        $modifyEntity = function (UpdateEventArgs $args) {
+        $removeEntity = function (FlushEventArgs $args) use ($danielleMurphy) {
+            $entityManager = $args->getEntityManager();
+            $entityUpdates = $args->getEntityUpdates();
+            $objectHash = spl_object_hash($danielleMurphy);
+            $entityManager->remove($entityUpdates[$objectHash][1]);
+
+            return true;
+        };
+
+        $_this = $this;
+
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $danielleMurphy) {
+            $entityUpdates = $args->getEntityUpdates();
+            $_this->assertEmpty($entityUpdates);
+
+            $entityDeletions = $args->getEntityDeletions();
+            $objectHash = spl_object_hash($danielleMurphy);
+            $_this->assertCount(1, $entityDeletions);
+            $_this->assertArrayHasKey($objectHash, $entityDeletions);
+            $_this->assertSame($danielleMurphy, $entityDeletions[$objectHash]);
+
+            return true;
+        };
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('onFlushEnhanced')
+            ->with($this->callback($removeEntity));
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('postFlushEnhanced')
+            ->with($this->callback($assertFlushEventArgs));
+
+        $this->_em->persist($danielleMurphy);
+        $this->_em->flush();
+
+        $this->assertSame('Danielle Sanders-Murphy', $danielleMurphy->getName());
+
+        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
+        $danielleSandersMurphy = $this->repository->findOneByName('Danielle Sanders-Murphy');
+
+        $this->assertNull($danielleMurphy);
+        $this->assertNull($danielleSandersMurphy);
+    }
+
+    public function testPersistEntityDeletionOnFlush()
+    {
+        $mikeKennedy = $this->repository->findOneByName('Mike Kennedy');
+
+        $persistEntity = function (FlushEventArgs $args) use ($mikeKennedy) {
+            $entityManager = $args->getEntityManager();
+            $entityDeletions = $args->getEntityDeletions();
+            $objectHash = spl_object_hash($mikeKennedy);
+            $entityManager->persist($entityDeletions[$objectHash]);
+
+            return true;
+        };
+
+        $_this = $this;
+
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $mikeKennedy) {
+            $entityDeletions = $args->getEntityDeletions();
+            $_this->assertEmpty($entityDeletions);
+
+            return true;
+        };
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('onFlushEnhanced')
+            ->with($this->callback($persistEntity));
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('postFlushEnhanced')
+            ->with($this->callback($assertFlushEventArgs));
+
+        $this->_em->remove($mikeKennedy);
+        $this->_em->flush();
+
+        $this->assertSame('Mike Kennedy', $mikeKennedy->getName());
+
+        $mikeKennedy = $this->repository->findOneByName('Mike Kennedy');
+
+        $this->assertNotNull($mikeKennedy);
+    }
+
+    public function testUpdateEntityDeletionOnFlush()
+    {
+        $mikeKennedy = $this->repository->findOneByName('Mike Kennedy');
+
+        $updateEntity = function (FlushEventArgs $args) use ($mikeKennedy) {
+            $entityManager = $args->getEntityManager();
+            $entityDeletions = $args->getEntityDeletions();
+            $objectHash = spl_object_hash($mikeKennedy);
+            $entityDeletions[$objectHash]->setName('Mike Jones');
+            $entityManager->persist($entityDeletions[$objectHash]);
+
+            return true;
+        };
+
+        $_this = $this;
+
+        $assertUpdateEventArgs = function (UpdateEventArgs $args) use ($_this) {
+            $_this->assertSame('Mike Jones', $args->getEntity()->getName());
+
+            return true;
+        };
+
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $mikeKennedy) {
+            $entityUpdates = $args->getEntityUpdates();
+            $objectHash = spl_object_hash($mikeKennedy);
+            $_this->assertCount(1, $entityUpdates);
+            $_this->assertArrayHasKey($objectHash, $entityUpdates);
+            $_this->assertSame($mikeKennedy, $entityUpdates[$objectHash][1]);
+            $_this->assertSame('Mike Kennedy', $entityUpdates[$objectHash][0]->getName());
+
+            $entityDeletions = $args->getEntityDeletions();
+            $_this->assertEmpty($entityDeletions);
+
+            return true;
+        };
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('onFlushEnhanced')
+            ->with($this->callback($updateEntity));
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('preUpdateEnhanced')
+            ->with($this->callback($assertUpdateEventArgs));
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('postUpdateEnhanced')
+            ->with($this->callback($assertUpdateEventArgs));
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('postFlushEnhanced')
+            ->with($this->callback($assertFlushEventArgs));
+
+        $this->_em->remove($mikeKennedy);
+        $this->_em->flush();
+
+        $this->assertSame('Mike Jones', $mikeKennedy->getName());
+
+        $mikeKennedy = $this->repository->findOneByName('Mike Kennedy');
+        $mikeJones = $this->repository->findOneByName('Mike Jones');
+
+        $this->assertNull($mikeKennedy);
+        $this->assertNotNull($mikeJones);
+    }
+
+    public function testPersistNewEntityOnFlush()
+    {
+        $zoeyPorter = new CompanyPerson();
+        $zoeyPorter->setName('Zoey Porter');
+
+        $rebeccaAnderson = new CompanyPerson();
+
+        $persistNewEntity = function (FlushEventArgs $args) use ($rebeccaAnderson) {
+            $entityManager = $args->getEntityManager();
+            $rebeccaAnderson->setName('Rebecca Anderson');
+            $entityManager->persist($rebeccaAnderson);
+
+            return true;
+        };
+
+        $_this = $this;
+
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $zoeyPorter, $rebeccaAnderson) {
+            $entityInsertions = $args->getEntityInsertions();
+            $objectHash = spl_object_hash($zoeyPorter);
+            $_this->assertCount(2, $entityInsertions);
+            $_this->assertArrayHasKey($objectHash, $entityInsertions);
+            $_this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
+            $objectHash = spl_object_hash($rebeccaAnderson);
+            $_this->assertArrayHasKey($objectHash, $entityInsertions);
+            $_this->assertSame($rebeccaAnderson, $entityInsertions[$objectHash]);
+
+            return true;
+        };
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('onFlushEnhanced')
+            ->with($this->callback($persistNewEntity));
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('postFlushEnhanced')
+            ->with($this->callback($assertFlushEventArgs));
+
+        $this->_em->persist($zoeyPorter);
+        $this->_em->flush();
+
+        $this->assertSame('Zoey Porter', $zoeyPorter->getName());
+        $this->assertSame('Rebecca Anderson', $rebeccaAnderson->getName());
+
+        $zoeyPorter = $this->repository->findOneByName('Zoey Porter');
+        $rebeccaAnderson = $this->repository->findOneByName('Rebecca Anderson');
+
+        $this->assertNotNull($zoeyPorter);
+        $this->assertNotNull($rebeccaAnderson);
+    }
+
+    public function testUpdateNewEntityOnFlushIgnored()
+    {
+        $zoeyPorter = new CompanyPerson();
+        $zoeyPorter->setName('Zoey Porter');
+
+        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
+
+        $persistNewEntity = function (FlushEventArgs $args) use ($danielleMurphy) {
+            $entityManager = $args->getEntityManager();
+            $danielleMurphy->setName('Danielle Sanders-Murphy');
+            $entityManager->persist($danielleMurphy);
+
+            return true;
+        };
+
+        $_this = $this;
+
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $zoeyPorter) {
+            $entityInsertions = $args->getEntityInsertions();
+            $objectHash = spl_object_hash($zoeyPorter);
+            $_this->assertCount(1, $entityInsertions);
+            $_this->assertArrayHasKey($objectHash, $entityInsertions);
+            $_this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
+
+            $entityUpdates = $args->getEntityUpdates();
+            $_this->assertEmpty($entityUpdates);
+
+            return true;
+        };
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('onFlushEnhanced')
+            ->with($this->callback($persistNewEntity));
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('postFlushEnhanced')
+            ->with($this->callback($assertFlushEventArgs));
+
+        $this->_em->persist($zoeyPorter);
+        $this->_em->flush();
+
+        $this->assertSame('Zoey Porter', $zoeyPorter->getName());
+        $this->assertSame('Danielle Sanders-Murphy', $danielleMurphy->getName());
+
+        $zoeyPorter = $this->repository->findOneByName('Zoey Porter');
+        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
+        $danielleSandersMurphy = $this->repository->findOneByName('Danielle Sanders-Murphy');
+
+        $this->assertNotNull($zoeyPorter);
+        $this->assertNotNull($danielleMurphy);
+        $this->assertNull($danielleSandersMurphy);
+    }
+
+    public function testUpdateNewEntityOnFlushManualRecompute()
+    {
+        $zoeyPorter = new CompanyPerson();
+        $zoeyPorter->setName('Zoey Porter');
+
+        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
+
+        $persistNewEntity = function (FlushEventArgs $args) use ($danielleMurphy) {
+            $entityManager = $args->getEntityManager();
+            $danielleMurphy->setName('Danielle Sanders-Murphy');
+            $entityManager->persist($danielleMurphy);
+
+            $className = get_class($danielleMurphy);
+            $classMetaData = $entityManager->getClassMetadata($className);
+            $unitOfWork = $entityManager->getUnitOfWork();
+            $unitOfWork->recomputeSingleEntityChangeSet($classMetaData, $danielleMurphy);
+
+            return true;
+        };
+
+        $_this = $this;
+
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $zoeyPorter, $danielleMurphy) {
+            $entityInsertions = $args->getEntityInsertions();
+            $objectHash = spl_object_hash($zoeyPorter);
+            $_this->assertCount(1, $entityInsertions);
+            $_this->assertArrayHasKey($objectHash, $entityInsertions);
+            $_this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
+
+            $entityUpdates = $args->getEntityUpdates();
+            $objectHash = spl_object_hash($danielleMurphy);
+            $_this->assertCount(1, $entityUpdates);
+            $_this->assertArrayHasKey($objectHash, $entityUpdates);
+            $_this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
+            $_this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
+
+            return true;
+        };
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('onFlushEnhanced')
+            ->with($this->callback($persistNewEntity));
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('postFlushEnhanced')
+            ->with($this->callback($assertFlushEventArgs));
+
+        $this->_em->persist($zoeyPorter);
+        $this->_em->flush();
+
+        $this->assertSame('Zoey Porter', $zoeyPorter->getName());
+        $this->assertSame('Danielle Sanders-Murphy', $danielleMurphy->getName());
+
+        $zoeyPorter = $this->repository->findOneByName('Zoey Porter');
+        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
+        $danielleSandersMurphy = $this->repository->findOneByName('Danielle Sanders-Murphy');
+
+        $this->assertNotNull($zoeyPorter);
+        $this->assertNull($danielleMurphy);
+        $this->assertNotNull($danielleSandersMurphy);
+    }
+
+    public function testRemoveNewEntityOnFlush()
+    {
+        $zoeyPorter = new CompanyPerson();
+        $zoeyPorter->setName('Zoey Porter');
+
+        $mikeKennedy = $this->repository->findOneByName('Mike Kennedy');
+
+        $persistNewEntity = function (FlushEventArgs $args) use ($mikeKennedy) {
+            $entityManager = $args->getEntityManager();
+            $entityManager->remove($mikeKennedy);
+
+            return true;
+        };
+
+        $_this = $this;
+
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $zoeyPorter, $mikeKennedy) {
+            $entityInsertions = $args->getEntityInsertions();
+            $objectHash = spl_object_hash($zoeyPorter);
+            $_this->assertCount(1, $entityInsertions);
+            $_this->assertArrayHasKey($objectHash, $entityInsertions);
+            $_this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
+
+            $entityDeletions = $args->getEntityDeletions();
+            $objectHash = spl_object_hash($mikeKennedy);
+            $_this->assertCount(1, $entityDeletions);
+            $_this->assertArrayHasKey($objectHash, $entityDeletions);
+            $_this->assertSame($mikeKennedy, $entityDeletions[$objectHash]);
+
+            return true;
+        };
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('onFlushEnhanced')
+            ->with($this->callback($persistNewEntity));
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('postFlushEnhanced')
+            ->with($this->callback($assertFlushEventArgs));
+
+        $this->_em->persist($zoeyPorter);
+        $this->_em->flush();
+
+        $this->assertSame('Zoey Porter', $zoeyPorter->getName());
+        $this->assertSame('Mike Kennedy', $mikeKennedy->getName());
+
+        $zoeyPorter = $this->repository->findOneByName('Zoey Porter');
+        $mikeKennedy = $this->repository->findOneByName('Mike Kennedy');
+
+        $this->assertNotNull($zoeyPorter);
+        $this->assertNull($mikeKennedy);
+    }
+
+    public function testUpdateEntityPreUpdate()
+    {
+        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
+        $danielleMurphy->setName('Danielle Sanders-Murphy');
+
+        $updateEntity = function (UpdateEventArgs $args) {
             $args->getEntity()->setName('Danielle Sanders');
 
             return true;
@@ -255,7 +733,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             $_this->assertCount(1, $entityUpdates);
             $_this->assertArrayHasKey($objectHash, $entityUpdates);
             $_this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
-            $_this->assertSame('Danielle Sanders', $entityUpdates[$objectHash][1]->getName());
+            $_this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
 
             return true;
         };
@@ -263,7 +741,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->eventSubscriberMock
             ->expects($this->once())
             ->method('preUpdateEnhanced')
-            ->with($this->callback($modifyEntity));
+            ->with($this->callback($updateEntity));
 
         $this->eventSubscriberMock
             ->expects($this->once())
@@ -289,12 +767,12 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNotNull($danielleSanders);
     }
 
-    public function testModifyEntityPostUpdateIgnored()
+    public function testUpdateEntityPostUpdateIgnored()
     {
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
         $danielleMurphy->setName('Danielle Sanders-Murphy');
 
-        $modifyEntity = function (UpdateEventArgs $args) {
+        $updateEntity = function (UpdateEventArgs $args) {
             $args->getEntity()->setName('Danielle Sanders');
 
             return true;
@@ -308,7 +786,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             $_this->assertCount(1, $entityUpdates);
             $_this->assertArrayHasKey($objectHash, $entityUpdates);
             $_this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
-            $_this->assertSame('Danielle Sanders', $entityUpdates[$objectHash][1]->getName());
+            $_this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
 
             return true;
         };
@@ -316,7 +794,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->eventSubscriberMock
             ->expects($this->once())
             ->method('postUpdateEnhanced')
-            ->with($this->callback($modifyEntity));
+            ->with($this->callback($updateEntity));
 
         $this->eventSubscriberMock
             ->expects($this->once())
@@ -329,20 +807,20 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertSame('Danielle Sanders', $danielleMurphy->getName());
 
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
-        $danielleSanders = $this->repository->findOneByName('Danielle Sanders');
         $danielleSandersMurphy = $this->repository->findOneByName('Danielle Sanders-Murphy');
+        $danielleSanders = $this->repository->findOneByName('Danielle Sanders');
 
         $this->assertNull($danielleMurphy);
-        $this->assertNull($danielleSanders);
         $this->assertNotNull($danielleSandersMurphy);
+        $this->assertNull($danielleSanders);
     }
 
-    public function testModifyEntityPostFlushIgnored()
+    public function testUpdateEntityPostFlushIgnored()
     {
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
         $danielleMurphy->setName('Danielle Sanders-Murphy');
 
-        $modifyEntity = function (FlushEventArgs $args) use ($danielleMurphy) {
+        $updateEntity = function (FlushEventArgs $args) use ($danielleMurphy) {
             $entityUpdates = $args->getEntityUpdates();
             $objectHash = spl_object_hash($danielleMurphy);
             $entityUpdates[$objectHash][1]->setName('Danielle Sanders');
@@ -353,7 +831,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->eventSubscriberMock
             ->expects($this->once())
             ->method('postFlushEnhanced')
-            ->with($this->callback($modifyEntity));
+            ->with($this->callback($updateEntity));
 
         $this->_em->persist($danielleMurphy);
         $this->_em->flush($danielleMurphy);
@@ -361,12 +839,12 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertSame('Danielle Sanders', $danielleMurphy->getName());
 
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
-        $danielleSanders = $this->repository->findOneByName('Danielle Sanders');
         $danielleSandersMurphy = $this->repository->findOneByName('Danielle Sanders-Murphy');
+        $danielleSanders = $this->repository->findOneByName('Danielle Sanders');
 
         $this->assertNull($danielleMurphy);
-        $this->assertNull($danielleSanders);
         $this->assertNotNull($danielleSandersMurphy);
+        $this->assertNull($danielleSanders);
     }
 
     public function testNestedFlushes()
