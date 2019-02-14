@@ -15,9 +15,10 @@ Learn more about it in its [documentation](https://github.com/darkwebdesign/doct
 
 ## Features
 
-* Access to the original entity in the `pre-update` and `post-update` lifecycle event.
-* Modifying via updated entity itself (instead of via "change set" array) in the `pre-update` lifecycle event.
-* Automatical recomputing of the "change set" after modifying the updated entity in the `pre-update` lifecycle event.
+* Access to the original entity in the `pre-update` and `post-update` lifecycle events.
+* Access to the created, updated (also their original entities) and deleted entities in the `on-flush` and `post-flush` events.
+* Modifying the actual entities (instead of via "change set" array) in the `on-flush` event and `pre-update` lifecycle event.
+* Automatic recomputing of the "change set" after modifying the entities in the `on-flush` event.
 
 ## Installing via Composer
 
