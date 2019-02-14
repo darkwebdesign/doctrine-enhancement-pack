@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+readonly DIR="$(cd "$(dirname "$BASH_SOURCE[0]")" && pwd)";
+readonly BRANCH="${1?No branch specified}";
+
+cd "$DIR/..";
+
+git checkout "$BRANCH"
+git pull origin "$BRANCH"
+
+git remote add doctrine-enhanced-events git@github.com:darkwebdesign/doctrine-enhanced-events.git
+git subtree split --prefix=doctrine-enhanced-events -b "doctrine-enhanced-events-$BRANCH"
+git push doctrine-enhanced-events "doctrine-enhanced-events-$BRANCH:$BRANCH"
+git branch -D "doctrine-enhanced-events-$BRANCH"
+git remote remove doctrine-enhanced-events
