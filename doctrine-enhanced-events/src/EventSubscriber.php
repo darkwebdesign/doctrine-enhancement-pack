@@ -77,7 +77,10 @@ class EventSubscriber implements DoctrineEventSubscriber
 
         $eventManager->dispatchEvent(Events::onFlushEnhanced, $eventArgs);
 
-        $unitOfWork->computeChangeSets();
+        foreach ($entityUpdates as $entity) {
+            $classMetaData = $entityManager->getClassMetadata($className);
+            $unitOfWork->recomputeSingleEntityChangeSet($classMetaData, $entity);
+        }
     }
 
     /**
