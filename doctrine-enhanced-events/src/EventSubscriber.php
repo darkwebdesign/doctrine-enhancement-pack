@@ -21,11 +21,13 @@
 namespace DarkWebDesign\DoctrineEnhancedEvents;
 
 use Doctrine\Common\EventSubscriber as DoctrineEventSubscriber;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
 use Doctrine\ORM\Events as DoctrineEvents;
+use Doctrine\ORM\UnitOfWork;
 
 /**
  * @author Raymond Schouten
@@ -49,37 +51,32 @@ class EventSubscriber implements DoctrineEventSubscriber
     public function onFlush(OnFlushEventArgs $eventArgs)
     {
         $entityManager = $eventArgs->getEntityManager();
-        $unitOfWork = $entityManager->getUnitOfWork();
         $eventManager = $entityManager->getEventManager();
 
-        $entityInsertions = $unitOfWork->getScheduledEntityInsertions();
-        $entityUpdates = $unitOfWork->getScheduledEntityUpdates();
-        $entityDeletions = $unitOfWork->getScheduledEntityDeletions();
-
-        $this->entityInsertions = $entityInsertions;
-        $this->entityUpdates = array();
-        $this->entityDeletions = $entityDeletions;
-
-        foreach ($entityUpdates as $objectHash => $entity) {
-            $originalEntity = clone $entity;
-            $entityChangeSet = $unitOfWork->getEntityChangeSet($entity);
-            $className = get_class($entity);
-            $classMetaData = $entityManager->getClassMetadata($className);
-
-            foreach ($entityChangeSet as $field => $values) {
-                $classMetaData->reflFields[$field]->setValue($originalEntity, $values[0]);
-            }
-
-            $this->entityUpdates[$objectHash] = array($originalEntity, $entity);
-        }
+        $this->cacheContext($entityManager);
 
         $eventArgs = new FlushEventArgs($this->entityInsertions, $this->entityUpdates, $this->entityDeletions, $entityManager);
 
         $eventManager->dispatchEvent(Events::onFlushEnhanced, $eventArgs);
 
-        foreach ($entityUpdates as $entity) {
-            $classMetaData = $entityManager->getClassMetadata($className);
-            $unitOfWork->recomputeSingleEntityChangeSet($classMetaData, $entity);
+        $originalEntityDeletions = $this->entityDeletions;
+
+        $this->cacheContext($entityManager);
+
+        $entityDeletions = array_merge($originalEntityDeletions, $this->entityDeletions);
+
+        foreach ($this->entityInsertions as $entity) {
+            $this->computeChangeSet($entityManager, $entity);
+        }
+
+        foreach ($this->entityUpdates as $entityUpdate) {
+            $this->computeChangeSet($entityManager, $entityUpdate[1]);
+        }
+
+        foreach ($entityDeletions as $entity) {
+            if ($this->computeChangeSet($entityManager, $entity)) {
+                $this->addEntityUpdate($entityManager, $entity);
+            }
         }
     }
 
@@ -90,18 +87,14 @@ class EventSubscriber implements DoctrineEventSubscriber
     {
         $entity = $eventArgs->getObject();
         $entityManager = $eventArgs->getEntityManager();
-        $unitOfWork = $entityManager->getUnitOfWork();
-        $className = get_class($entity);
-        $classMetaData = $entityManager->getClassMetadata($className);
         $eventManager = $entityManager->getEventManager();
 
-        $originalEntity = $this->entityUpdates[spl_object_hash($entity)][0];
+        $objectHash = spl_object_hash($entity);
+        $originalEntity = $this->entityUpdates[$objectHash][0];
 
         $eventArgs = new UpdateEventArgs($entity, $originalEntity, $entityManager);
 
         $eventManager->dispatchEvent(Events::preUpdateEnhanced, $eventArgs);
-
-        $unitOfWork->recomputeSingleEntityChangeSet($classMetaData, $entity);
     }
 
     /**
@@ -111,13 +104,19 @@ class EventSubscriber implements DoctrineEventSubscriber
     {
         $entity = $eventArgs->getObject();
         $entityManager = $eventArgs->getEntityManager();
+        $unitOfWork = $entityManager->getUnitOfWork();
+        $className = get_class($entity);
+        $classMetaData = $entityManager->getClassMetadata($className);
         $eventManager = $entityManager->getEventManager();
 
-        $originalEntity = $this->entityUpdates[spl_object_hash($entity)][0];
+        $objectHash = spl_object_hash($entity);
+        $originalEntity = $this->entityUpdates[$objectHash][0];
 
         $eventArgs = new UpdateEventArgs($entity, $originalEntity, $entityManager);
 
         $eventManager->dispatchEvent(Events::postUpdateEnhanced, $eventArgs);
+
+        $unitOfWork->recomputeSingleEntityChangeSet($classMetaData, $entity);
     }
 
     /**
@@ -132,6 +131,91 @@ class EventSubscriber implements DoctrineEventSubscriber
 
         $eventManager->dispatchEvent(Events::postFlushEnhanced, $eventArgs);
 
+        $this->clearContext();
+    }
+
+    /**
+     * @param \Doctrine\ORM\EntityManagerInterface $entityManager
+     */
+    private function cacheContext(EntityManagerInterface $entityManager)
+    {
+        $unitOfWork = $entityManager->getUnitOfWork();
+
+        $scheduledEntityInsertions = $unitOfWork->getScheduledEntityInsertions();
+        $scheduledEntityUpdates = $unitOfWork->getScheduledEntityUpdates();
+        $scheduledEntityDeletions = $unitOfWork->getScheduledEntityDeletions();
+
+        $this->entityInsertions = $scheduledEntityInsertions;
+        $this->entityUpdates = array();
+        $this->entityDeletions = $scheduledEntityDeletions;
+
+        foreach ($scheduledEntityUpdates as $entity) {
+            $this->addEntityUpdate($entityManager, $entity);
+        }
+    }
+
+    /**
+     * @param \Doctrine\ORM\EntityManagerInterface $entityManager
+     * @param object $entity
+     */
+    private function addEntityUpdate(EntityManagerInterface $entityManager, $entity)
+    {
+        $objectHash = spl_object_hash($entity);
+        $originalEntity = $this->getOriginalEntity($entityManager, $entity);
+        $this->entityUpdates[$objectHash] = array($originalEntity, $entity);
+    }
+
+    /**
+     * @param \Doctrine\ORM\EntityManagerInterface $entityManager
+     * @param object $entity
+     *
+     * @return object
+     */
+    private function getOriginalEntity(EntityManagerInterface $entityManager, $entity)
+    {
+        $unitOfWork = $entityManager->getUnitOfWork();
+        $entityChangeSet = $unitOfWork->getEntityChangeSet($entity);
+
+        $className = get_class($entity);
+        $classMetaData = $entityManager->getClassMetadata($className);
+
+        $originalEntity = clone $entity;
+
+        foreach ($entityChangeSet as $field => $values) {
+            $classMetaData->reflFields[$field]->setValue($originalEntity, $values[0]);
+        }
+
+        return $originalEntity;
+    }
+
+    /**
+     * @param \Doctrine\ORM\EntityManagerInterface $entityManager
+     * @param object $entity
+     *
+     * @return bool
+     */
+    private function computeChangeSet(EntityManagerInterface $entityManager, $entity)
+    {
+        $unitOfWork = $entityManager->getUnitOfWork();
+
+        if ($unitOfWork->getEntityState($entity) !== UnitOfWork::STATE_MANAGED) {
+            return false;
+        }
+
+        $className = get_class($entity);
+        $classMetaData = $entityManager->getClassMetadata($className);
+
+        if ($unitOfWork->getOriginalEntityData($entity)) {
+            $unitOfWork->recomputeSingleEntityChangeSet($classMetaData, $entity);
+        } else {
+            $unitOfWork->computeChangeSet($classMetaData, $entity);
+        }
+
+        return true;
+    }
+
+    private function clearContext()
+    {
         $this->entityInsertions = array();
         $this->entityUpdates = array();
         $this->entityDeletions = array();
