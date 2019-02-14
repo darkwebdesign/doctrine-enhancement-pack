@@ -104,9 +104,6 @@ class EventSubscriber implements DoctrineEventSubscriber
     {
         $entity = $eventArgs->getObject();
         $entityManager = $eventArgs->getEntityManager();
-        $unitOfWork = $entityManager->getUnitOfWork();
-        $className = get_class($entity);
-        $classMetaData = $entityManager->getClassMetadata($className);
         $eventManager = $entityManager->getEventManager();
 
         $objectHash = spl_object_hash($entity);
@@ -115,8 +112,6 @@ class EventSubscriber implements DoctrineEventSubscriber
         $eventArgs = new UpdateEventArgs($entity, $originalEntity, $entityManager);
 
         $eventManager->dispatchEvent(Events::postUpdateEnhanced, $eventArgs);
-
-        $unitOfWork->recomputeSingleEntityChangeSet($classMetaData, $entity);
     }
 
     /**
