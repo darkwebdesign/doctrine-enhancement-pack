@@ -25,9 +25,9 @@ namespace DarkWebDesign\DoctrineEnhancedEvents\Tests;
 use DarkWebDesign\DoctrineEnhancedEvents\Events;
 use DarkWebDesign\DoctrineEnhancedEvents\EventSubscriber;
 use DarkWebDesign\DoctrineEnhancedEvents\FlushEventArgs;
+use DarkWebDesign\DoctrineEnhancedEvents\Tests\Mocks\EventSubscriberMock;
 use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs;
 use DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson;
-use Doctrine\Common\EventSubscriber as DoctrineEventSubscriber;
 
 class EventSubscriberTest extends OrmFunctionalTestCase
 {
@@ -46,7 +46,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         $this->repository = $this->_em->getRepository(CompanyPerson::class);
 
-        $this->eventSubscriberMock = $this->createMock(DoctrineEventSubscriber::class, [
+        $this->eventSubscriberMock = $this->createMock(EventSubscriberMock::class, [
             'onFlushEnhanced',
             'preUpdateEnhanced',
             'postUpdateEnhanced',
