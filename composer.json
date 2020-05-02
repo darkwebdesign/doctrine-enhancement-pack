@@ -9,12 +9,12 @@
         {"name": "Raymond Schouten"}
     ],
     "require": {
-        "doctrine/common": "^2.8",
-        "doctrine/orm": "2.6.*",
+        "doctrine/common": "^2.11",
+        "doctrine/orm": "2.7.*",
         "php": "^7.1"
     },
     "require-dev": {
-        "darkwebdesign/doctrine-unit-testing": "2.6.*",
+        "darkwebdesign/doctrine-unit-testing": "2.7.*",
         "doctrine/data-fixtures": "^1.1",
         "phpunit/phpunit": "^7.5"
     },

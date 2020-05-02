@@ -37,7 +37,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
     /** @var \Doctrine\Common\EventSubscriber|\PHPUnit\Framework\MockObject\MockObject */
     private $eventSubscriberMock;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->useModelSet('company');
         $this->useFixtureSet('company');

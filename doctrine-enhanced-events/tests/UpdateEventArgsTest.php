@@ -38,7 +38,7 @@ class UpdateEventArgsTest extends TestCase
     /** @var \Doctrine\Common\Persistence\ObjectManager|\PHPUnit\Framework\MockObject\MockObject */
     private $objectManager;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->entity = $this->createMock(CompanyPerson::class);
         $this->originalEntity = $this->createMock(CompanyPerson::class);
