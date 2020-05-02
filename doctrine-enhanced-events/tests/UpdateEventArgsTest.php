@@ -18,26 +18,31 @@
  * SOFTWARE.
  */
 
+declare(strict_types=1);
+
 namespace DarkWebDesign\DoctrineEnhancedEvents\Tests;
 
 use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs;
+use DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson;
+use Doctrine\Common\Persistence\ObjectManager;
+use PHPUnit\Framework\TestCase;
 
-class UpdateEventArgsTest extends \PHPUnit_Framework_TestCase
+class UpdateEventArgsTest extends TestCase
 {
-    /** @var \DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var \DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson|\PHPUnit\Framework\MockObject\MockObject */
     private $entity;
 
-    /** @var \DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var \DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson|\PHPUnit\Framework\MockObject\MockObject */
     private $originalEntity;
 
-    /** @var \Doctrine\Common\Persistence\ObjectManager|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var \Doctrine\Common\Persistence\ObjectManager|\PHPUnit\Framework\MockObject\MockObject */
     private $objectManager;
 
     protected function setUp()
     {
-        $this->entity = $this->getMock('DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson');
-        $this->originalEntity = $this->getMock('DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson');
-        $this->objectManager = $this->getMock('Doctrine\Common\Persistence\ObjectManager');
+        $this->entity = $this->createMock(CompanyPerson::class);
+        $this->originalEntity = $this->createMock(CompanyPerson::class);
+        $this->objectManager = $this->createMock(ObjectManager::class);
     }
 
     public function testGetters()

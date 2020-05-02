@@ -18,6 +18,8 @@
  * SOFTWARE.
  */
 
+declare(strict_types=1);
+
 namespace DarkWebDesign\DoctrineEnhancedEvents\Tests;
 
 use DarkWebDesign\DoctrineEnhancedEvents\Events;
@@ -25,13 +27,14 @@ use DarkWebDesign\DoctrineEnhancedEvents\EventSubscriber;
 use DarkWebDesign\DoctrineEnhancedEvents\FlushEventArgs;
 use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs;
 use DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson;
+use Doctrine\Common\EventSubscriber as DoctrineEventSubscriber;
 
 class EventSubscriberTest extends OrmFunctionalTestCase
 {
     /** @var \Doctrine\ORM\EntityRepository */
     private $repository;
 
-    /** @var \Doctrine\Common\EventSubscriber|\PHPUnit_Framework_MockObject_MockObject */
+    /** @var \Doctrine\Common\EventSubscriber|\PHPUnit\Framework\MockObject\MockObject */
     private $eventSubscriberMock;
 
     protected function setUp()
@@ -41,25 +44,25 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         parent::setUp();
 
-        $this->repository = $this->_em->getRepository('DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson');
+        $this->repository = $this->_em->getRepository(CompanyPerson::class);
 
-        $this->eventSubscriberMock = $this->getMock('Doctrine\Common\EventSubscriber', array(
+        $this->eventSubscriberMock = $this->createMock(DoctrineEventSubscriber::class, [
             'onFlushEnhanced',
             'preUpdateEnhanced',
             'postUpdateEnhanced',
             'postFlushEnhanced',
             'getSubscribedEvents'
-        ));
+        ]);
 
         $this->eventSubscriberMock
             ->expects($this->any())
             ->method('getSubscribedEvents')
-            ->will($this->returnValue(array(
+            ->will($this->returnValue([
                 Events::onFlushEnhanced,
                 Events::preUpdateEnhanced,
                 Events::postUpdateEnhanced,
                 Events::postFlushEnhanced,
-            )));
+            ]));
 
         $eventManager = static::$_sharedConn->getEventManager();
         $eventManager->addEventSubscriber(new EventSubscriber());

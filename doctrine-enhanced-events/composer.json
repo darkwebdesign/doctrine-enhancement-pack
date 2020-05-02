@@ -16,7 +16,7 @@
     "require-dev": {
         "darkwebdesign/doctrine-unit-testing": "2.5.*",
         "doctrine/data-fixtures": "^1.1",
-        "phpunit/phpunit": "^4.8"
+        "phpunit/phpunit": "^7.5"
     },
     "suggest": {
         "darkwebdesign/doctrine-enhancement-pack": "All Doctrine enhancements bundled together"
