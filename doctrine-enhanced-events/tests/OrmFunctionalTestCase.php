@@ -48,7 +48,7 @@ class OrmFunctionalTestCase extends BaseOrmFunctionalTestCase
         $this->usedFixtureSets[$setName] = true;
     }
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 
