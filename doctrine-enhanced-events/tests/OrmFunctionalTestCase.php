@@ -18,8 +18,11 @@
  * SOFTWARE.
  */
 
+declare(strict_types=1);
+
 namespace DarkWebDesign\DoctrineEnhancedEvents\Tests;
 
+use DarkWebDesign\DoctrineEnhancedEvents\Tests\Fixtures\CompanyPersonLoader;
 use DarkWebDesign\DoctrineUnitTesting\OrmFunctionalTestCase as BaseOrmFunctionalTestCase;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Loader;
@@ -28,14 +31,14 @@ use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 class OrmFunctionalTestCase extends BaseOrmFunctionalTestCase
 {
     /** @var array */
-    protected $usedFixtureSets = array();
+    protected $usedFixtureSets = [];
 
     /** @var array */
-    protected $fixtureSets = array(
-        'company' => array(
-            'DarkWebDesign\DoctrineEnhancedEvents\Tests\Fixtures\CompanyPersonLoader',
-        ),
-    );
+    protected $fixtureSets = [
+        'company' => [
+            CompanyPersonLoader::class,
+        ],
+    ];
 
     /**
      * @param string $setName

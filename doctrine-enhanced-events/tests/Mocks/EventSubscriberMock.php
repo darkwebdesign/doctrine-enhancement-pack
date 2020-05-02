@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2017 DarkWeb Design
+ * Copyright (c) 2020 DarkWeb Design
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,17 +20,32 @@
 
 declare(strict_types=1);
 
-namespace DarkWebDesign\DoctrineEnhancedEvents;
+namespace DarkWebDesign\DoctrineEnhancedEvents\Tests\Mocks;
 
-/**
- * @author Raymond Schouten
- *
- * @since 2.4
- */
-class Events
+use DarkWebDesign\DoctrineEnhancedEvents\FlushEventArgs;
+use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs;
+use Doctrine\Common\EventSubscriber;
+
+class EventSubscriberMock implements EventSubscriber
 {
-    const preUpdateEnhanced = 'preUpdateEnhanced';
-    const postUpdateEnhanced = 'postUpdateEnhanced';
-    const onFlushEnhanced = 'onFlushEnhanced';
-    const postFlushEnhanced = 'postFlushEnhanced';
+    public function onFlushEnhanced(FlushEventArgs $eventArgs)
+    {
+    }
+
+    public function preUpdateEnhanced(UpdateEventArgs $eventArgs)
+    {
+    }
+
+    public function postUpdateEnhanced(UpdateEventArgs $eventArgs)
+    {
+    }
+
+    public function postFlushEnhanced(FlushEventArgs $eventArgs)
+    {
+    }
+
+    public function getSubscribedEvents()
+    {
+        return [];
+    }
 }
