@@ -18,6 +18,8 @@
  * SOFTWARE.
  */
 
+declare(strict_types=1);
+
 namespace DarkWebDesign\DoctrineEnhancedEvents;
 
 use Doctrine\Common\EventSubscriber as DoctrineEventSubscriber;
@@ -37,13 +39,13 @@ use Doctrine\ORM\UnitOfWork;
 class EventSubscriber implements DoctrineEventSubscriber
 {
     /** @var array */
-    private $entityInsertions = array();
+    private $entityInsertions = [];
 
     /** @var array */
-    private $entityUpdates = array();
+    private $entityUpdates = [];
 
     /** @var array */
-    private $entityDeletions = array();
+    private $entityDeletions = [];
 
     /**
      * @param \Doctrine\ORM\Event\OnFlushEventArgs $eventArgs
@@ -141,7 +143,7 @@ class EventSubscriber implements DoctrineEventSubscriber
         $scheduledEntityDeletions = $unitOfWork->getScheduledEntityDeletions();
 
         $this->entityInsertions = $scheduledEntityInsertions;
-        $this->entityUpdates = array();
+        $this->entityUpdates = [];
         $this->entityDeletions = $scheduledEntityDeletions;
 
         foreach ($scheduledEntityUpdates as $entity) {
@@ -157,7 +159,7 @@ class EventSubscriber implements DoctrineEventSubscriber
     {
         $objectHash = spl_object_hash($entity);
         $originalEntity = $this->getOriginalEntity($entityManager, $entity);
-        $this->entityUpdates[$objectHash] = array($originalEntity, $entity);
+        $this->entityUpdates[$objectHash] = [$originalEntity, $entity];
     }
 
     /**
@@ -211,9 +213,9 @@ class EventSubscriber implements DoctrineEventSubscriber
 
     private function clearContext()
     {
-        $this->entityInsertions = array();
-        $this->entityUpdates = array();
-        $this->entityDeletions = array();
+        $this->entityInsertions = [];
+        $this->entityUpdates = [];
+        $this->entityDeletions = [];
     }
 
     /**
@@ -221,11 +223,11 @@ class EventSubscriber implements DoctrineEventSubscriber
      */
     public function getSubscribedEvents()
     {
-        return array(
+        return [
             DoctrineEvents::onFlush,
             DoctrineEvents::preUpdate,
             DoctrineEvents::postUpdate,
             DoctrineEvents::postFlush,
-        );
+        ];
     }
 }
