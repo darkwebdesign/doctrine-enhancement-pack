@@ -54,24 +54,31 @@ class EventSubscriber implements DoctrineEventSubscriber
     {
         $entityManager = $eventArgs->getEntityManager();
         $eventManager = $entityManager->getEventManager();
+        $connection = $entityManager->getConnection();
+        $transactionNestingLevel = $connection->getTransactionNestingLevel() + 1;
 
         $this->cacheContext($entityManager);
 
-        $eventArgs = new FlushEventArgs($this->entityInsertions, $this->entityUpdates, $this->entityDeletions, $entityManager);
+        $eventArgs = new FlushEventArgs(
+            $this->entityInsertions[$transactionNestingLevel],
+            $this->entityUpdates[$transactionNestingLevel],
+            $this->entityDeletions[$transactionNestingLevel],
+            $entityManager
+        );
 
         $eventManager->dispatchEvent(Events::onFlushEnhanced, $eventArgs);
 
-        $originalEntityDeletions = $this->entityDeletions;
+        $originalEntityDeletions = $this->entityDeletions[$transactionNestingLevel] ?? [];
 
         $this->cacheContext($entityManager);
 
-        $entityDeletions = array_merge($originalEntityDeletions, $this->entityDeletions);
+        $entityDeletions = array_merge($originalEntityDeletions, $this->entityDeletions[$transactionNestingLevel]);
 
-        foreach ($this->entityInsertions as $entity) {
+        foreach ($this->entityInsertions[$transactionNestingLevel] as $entity) {
             $this->computeChangeSet($entityManager, $entity);
         }
 
-        foreach ($this->entityUpdates as $entityUpdate) {
+        foreach ($this->entityUpdates[$transactionNestingLevel] as $entityUpdate) {
             $this->computeChangeSet($entityManager, $entityUpdate[1]);
         }
 
@@ -90,9 +97,11 @@ class EventSubscriber implements DoctrineEventSubscriber
         $entity = $eventArgs->getObject();
         $entityManager = $eventArgs->getEntityManager();
         $eventManager = $entityManager->getEventManager();
+        $connection = $entityManager->getConnection();
+        $transactionNestingLevel = $connection->getTransactionNestingLevel();
 
         $objectHash = spl_object_hash($entity);
-        $originalEntity = $this->entityUpdates[$objectHash][0];
+        $originalEntity = $this->entityUpdates[$transactionNestingLevel][$objectHash][0];
 
         $eventArgs = new UpdateEventArgs($entity, $originalEntity, $entityManager);
 
@@ -107,9 +116,11 @@ class EventSubscriber implements DoctrineEventSubscriber
         $entity = $eventArgs->getObject();
         $entityManager = $eventArgs->getEntityManager();
         $eventManager = $entityManager->getEventManager();
+        $connection = $entityManager->getConnection();
+        $transactionNestingLevel = $connection->getTransactionNestingLevel();
 
         $objectHash = spl_object_hash($entity);
-        $originalEntity = $this->entityUpdates[$objectHash][0];
+        $originalEntity = $this->entityUpdates[$transactionNestingLevel][$objectHash][0];
 
         $eventArgs = new UpdateEventArgs($entity, $originalEntity, $entityManager);
 
@@ -123,12 +134,21 @@ class EventSubscriber implements DoctrineEventSubscriber
     {
         $entityManager = $eventArgs->getEntityManager();
         $eventManager = $entityManager->getEventManager();
+        $connection = $entityManager->getConnection();
+        $transactionNestingLevel = $connection->getTransactionNestingLevel() + 1;
 
-        $eventArgs = new FlushEventArgs($this->entityInsertions, $this->entityUpdates, $this->entityDeletions, $entityManager);
+        $eventArgs = new FlushEventArgs(
+            $this->entityInsertions[$transactionNestingLevel],
+            $this->entityUpdates[$transactionNestingLevel],
+            $this->entityDeletions[$transactionNestingLevel],
+            $entityManager
+        );
 
         $eventManager->dispatchEvent(Events::postFlushEnhanced, $eventArgs);
 
-        $this->clearContext();
+        unset($this->entityInsertions[$transactionNestingLevel]);
+        unset($this->entityUpdates[$transactionNestingLevel]);
+        unset($this->entityDeletions[$transactionNestingLevel]);
     }
 
     /**
@@ -137,14 +157,16 @@ class EventSubscriber implements DoctrineEventSubscriber
     private function cacheContext(EntityManager $entityManager)
     {
         $unitOfWork = $entityManager->getUnitOfWork();
+        $connection = $entityManager->getConnection();
+        $transactionNestingLevel = $connection->getTransactionNestingLevel() + 1;
 
         $scheduledEntityInsertions = $unitOfWork->getScheduledEntityInsertions();
         $scheduledEntityUpdates = $unitOfWork->getScheduledEntityUpdates();
         $scheduledEntityDeletions = $unitOfWork->getScheduledEntityDeletions();
 
-        $this->entityInsertions = $scheduledEntityInsertions;
-        $this->entityUpdates = [];
-        $this->entityDeletions = $scheduledEntityDeletions;
+        $this->entityInsertions[$transactionNestingLevel] = $scheduledEntityInsertions;
+        $this->entityUpdates[$transactionNestingLevel] = [];
+        $this->entityDeletions[$transactionNestingLevel] = $scheduledEntityDeletions;
 
         foreach ($scheduledEntityUpdates as $entity) {
             $this->addEntityUpdate($entityManager, $entity);
@@ -157,9 +179,12 @@ class EventSubscriber implements DoctrineEventSubscriber
      */
     private function addEntityUpdate(EntityManager $entityManager, $entity)
     {
+        $connection = $entityManager->getConnection();
+        $transactionNestingLevel = $connection->getTransactionNestingLevel() + 1;
+
         $objectHash = spl_object_hash($entity);
         $originalEntity = $this->getOriginalEntity($entityManager, $entity);
-        $this->entityUpdates[$objectHash] = [$originalEntity, $entity];
+        $this->entityUpdates[$transactionNestingLevel][$objectHash] = [$originalEntity, $entity];
     }
 
     /**
@@ -209,13 +234,6 @@ class EventSubscriber implements DoctrineEventSubscriber
         }
 
         return true;
-    }
-
-    private function clearContext()
-    {
-        $this->entityInsertions = [];
-        $this->entityUpdates = [];
-        $this->entityDeletions = [];
     }
 
     /**
