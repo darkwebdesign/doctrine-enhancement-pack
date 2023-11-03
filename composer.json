@@ -11,7 +11,7 @@
     "require": {
         "doctrine/common": "^2.11",
         "doctrine/orm": "2.7.*",
-        "php": "^7.1"
+        "php": ">=7.1"
     },
     "require-dev": {
         "darkwebdesign/doctrine-unit-testing": "2.7.*",
