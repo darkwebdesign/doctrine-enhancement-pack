@@ -10,9 +10,6 @@ php:
     - '7.3'
     - '7.4'
 
-before_install:
-    - 'composer self-update --2'
-
 install:
     - 'composer install'
 
@@ -22,7 +19,7 @@ before_script:
     - './cc-test-reporter before-build'
 
 script:
-    - 'XDEBUG_MODE=coverage vendor/bin/phpunit'
+    - 'vendor/bin/phpunit'
 
 after_success:
     - 'bash <(curl -s https://codecov.io/bash) -f build/logs/clover.xml'

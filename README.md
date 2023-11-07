@@ -4,7 +4,7 @@
 [![Total Downloads](https://poser.pugx.org/darkwebdesign/doctrine-enhancement-pack/downloads?format=flat)](https://packagist.org/packages/darkwebdesign/doctrine-enhancement-pack)
 [![License](https://poser.pugx.org/darkwebdesign/doctrine-enhancement-pack/license?format=flat)](https://packagist.org/packages/darkwebdesign/doctrine-enhancement-pack)
 
-[![Build Status](https://travis-ci.com/darkwebdesign/doctrine-enhancement-pack.svg?branch=2.7)](https://travis-ci.com/darkwebdesign/doctrine-enhancement-pack?branch=2.7)
+[![Build Status](https://travis-ci.org/darkwebdesign/doctrine-enhancement-pack.svg?branch=2.7)](https://travis-ci.org/darkwebdesign/doctrine-enhancement-pack?branch=2.7)
 [![Coverage Status](https://codecov.io/gh/darkwebdesign/doctrine-enhancement-pack/branch/2.7/graph/badge.svg)](https://codecov.io/gh/darkwebdesign/doctrine-enhancement-pack)
 [![PHP Version](https://img.shields.io/badge/php-7.1%2B-777BB3.svg)](https://php.net/)
 [![Doctrine Version](https://img.shields.io/badge/doctrine-2.7-2E6BC8.svg)](http://www.doctrine-project.org/)
