@@ -24,7 +24,7 @@ namespace DarkWebDesign\DoctrineEnhancedEvents\Tests;
 
 use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs;
 use DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 use PHPUnit\Framework\TestCase;
 
 class UpdateEventArgsTest extends TestCase
@@ -35,7 +35,7 @@ class UpdateEventArgsTest extends TestCase
     /** @var \DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson|\PHPUnit\Framework\MockObject\MockObject */
     private $originalEntity;
 
-    /** @var \Doctrine\Common\Persistence\ObjectManager|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var \Doctrine\Persistence\ObjectManager|\PHPUnit\Framework\MockObject\MockObject */
     private $objectManager;
 
     protected function setUp(): void

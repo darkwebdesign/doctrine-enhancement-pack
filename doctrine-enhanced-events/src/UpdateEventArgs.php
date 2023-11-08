@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace DarkWebDesign\DoctrineEnhancedEvents;
 
-use Doctrine\Common\Persistence\ObjectManager;
 use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\Persistence\ObjectManager;
 
 /**
  * @author Raymond Schouten
@@ -38,7 +38,7 @@ class UpdateEventArgs extends LifecycleEventArgs
     /**
      * @param object $object
      * @param object $originalObject
-     * @param \Doctrine\Common\Persistence\ObjectManager $objectManager
+     * @param \Doctrine\Persistence\ObjectManager $objectManager
      */
     public function __construct($object, $originalObject, ObjectManager $objectManager)
     {
