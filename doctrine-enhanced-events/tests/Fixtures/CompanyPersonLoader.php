@@ -22,7 +22,7 @@ namespace DarkWebDesign\DoctrineEnhancedEvents\Tests\Fixtures;
 
 use DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson;
 use Doctrine\Common\DataFixtures\FixtureInterface;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 
 class CompanyPersonLoader implements FixtureInterface
 {
