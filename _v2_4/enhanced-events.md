@@ -61,12 +61,12 @@ class MyEventListener
 use DarkWebDesign\DoctrineEnhancedEvents\Events as EnhancedEvents;
 
 $eventManager->addEventListener(
-    [
+    array(
         EnhancedEvents::onFlushEnhanced,
         EnhancedEvents::preUpdateEnhanced,
         EnhancedEvents::postUpdateEnhanced,
         EnhancedEvents::postFlushEnhanced,
-    ],
+    ),
     new MyEventListener()
 );
 ```
@@ -101,12 +101,12 @@ class MyEventSubscriber implements EventSubscriber
 
     public function getSubscribedEvents()
     {
-        return [
+        return array(
             EnhancedEvents::onFlushEnhanced,
             EnhancedEvents::preUpdateEnhanced,
             EnhancedEvents::postUpdateEnhanced,
             EnhancedEvents::postFlushEnhanced,
-        ];
+        );
     }
 }
 ```
