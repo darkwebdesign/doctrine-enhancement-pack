@@ -147,7 +147,7 @@ class MyEventListener
     public function preUpdateEnhanced(EnhancedUpdateEventArgs $event)
     {
         $entity = $event->getEntity();
-        $entity->setModifiedAt(new \DateTime());
+        $entity->setModifiedAt(new DateTime());
     }
 }
 ```
@@ -189,7 +189,7 @@ class MyEventListener
         foreach ($event->getEntityUpdates() as $entityUpdate) {
             list ($originalEntity, $entity) = $entityUpdate;
 
-            $entity->setModifiedAt(new \DateTime());
+            $entity->setModifiedAt(new DateTime());
         }
     }
 }
@@ -209,7 +209,7 @@ class MyEventListener
         $entityRepository = $entityManager->getRepository('App\Entity\MyEntity');
 
         $entity = $entityRepository->find(1);
-        $entity->setModifiedAt(new \DateTime());
+        $entity->setModifiedAt(new DateTime());
 
         $entityManager->persist($entity);
 
