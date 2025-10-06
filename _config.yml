@@ -38,7 +38,7 @@ just_the_docs:
       search_exclude: true
     v2_4:
       name: v2.4
-      nav_exclude: true
+      nav_exclude: false
       nav_fold: true
       search_exclude: true
 
