@@ -8,10 +8,10 @@ redirect_from:
 
 # Doctrine Enhancement Pack
 
-[![Build Status](https://travis-ci.org/darkwebdesign/doctrine-enhancement-pack.svg?branch=2.6)](https://travis-ci.org/darkwebdesign/doctrine-enhancement-pack?branch=2.6)
-[![Coverage Status](https://codecov.io/gh/darkwebdesign/doctrine-enhancement-pack/branch/2.6/graph/badge.svg)](https://codecov.io/gh/darkwebdesign/doctrine-enhancement-pack)
-[![PHP Version](https://img.shields.io/badge/php-7.1%2B-777BB3.svg)](https://php.net/)
-[![Doctrine Version](https://img.shields.io/badge/doctrine-2.6-2E6BC8.svg)](http://www.doctrine-project.org/)
+[![Build Status](https://travis-ci.org/darkwebdesign/doctrine-enhancement-pack.svg?branch=2.5)](https://travis-ci.org/darkwebdesign/doctrine-enhancement-pack?branch=2.5)
+[![Coverage Status](https://codecov.io/gh/darkwebdesign/doctrine-enhancement-pack/branch/2.5/graph/badge.svg)](https://codecov.io/gh/darkwebdesign/doctrine-enhancement-pack)
+[![PHP Version](https://img.shields.io/badge/php-5.4%2B-777BB3.svg)](https://php.net/)
+[![Doctrine Version](https://img.shields.io/badge/doctrine-2.5-2E6BC8.svg)](http://www.doctrine-project.org/)
 [![License](https://poser.pugx.org/darkwebdesign/doctrine-enhancement-pack/license?format=flat)](https://packagist.org/packages/darkwebdesign/doctrine-enhancement-pack)
 
 Doctrine Enhancement Pack is a collection of extra Doctrine enhancements that you can use in your Doctrine applications.
