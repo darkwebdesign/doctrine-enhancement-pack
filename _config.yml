@@ -1,0 +1,71 @@
+remote_theme: just-the-docs/just-the-docs
+
+title: Doctrine Enhancement Pack
+
+aux_links:
+  Visit repository on GitHub: https://github.com/darkwebdesign/doctrine-enhancement-pack
+
+collections:
+  v2_7:
+    permalink: "/docs/2.7/:path:output_ext"
+    output: true
+  v2_6:
+    permalink: "/docs/2.6/:path:output_ext"
+    output: true
+  v2_5:
+    permalink: "/docs/2.5/:path:output_ext"
+    output: true
+  v2_4:
+    permalink: "/docs/2.4/:path:output_ext"
+    output: true
+
+just_the_docs:
+  collections:
+    v2_7:
+      name: v2.7 (latest)
+      nav_exclude: false
+      nav_fold: true
+      search_exclude: false
+    v2_6:
+      name: v2.6
+      nav_exclude: false
+      nav_fold: true
+      search_exclude: true
+    v2_5:
+      name: v2.5
+      nav_exclude: false
+      nav_fold: true
+      search_exclude: true
+    v2_4:
+      name: v2.4
+      nav_exclude: true
+      nav_fold: true
+      search_exclude: true
+
+callouts:
+  info:
+    title: Info
+    color: blue
+  warning:
+    title: Warning
+    color: yellow
+  danger:
+    title: Danger
+    color: red
+  grey-lt:
+    color: grey-lt
+  grey-dk:
+    color: grey-dk
+  purple:
+    color: purple
+  blue:
+    color: blue
+  green:
+    color: green
+  yellow:
+    color: yellow
+  red:
+    color: red
+
+plugins:
+  - jekyll-redirect-from
