@@ -11,7 +11,7 @@
 
 Doctrine Enhancement Pack is a collection of Doctrine enhancements that you can use in your Doctrine projects.
 
-Learn more about it in its [documentation](https://github.com/darkwebdesign/doctrine-enhancement-pack/blob/2.7/doc/index.md).
+Learn more about it in its [documentation](https://darkwebdesign.github.io/doctrine-enhancement-pack/docs/2.7).
 
 ## Features
 
