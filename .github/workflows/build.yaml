@@ -32,5 +32,5 @@ jobs:
         run: 'XDEBUG_MODE=coverage vendor/bin/phpunit --coverage-text --coverage-clover=phpunit-coverage.xml'
       - uses: 'qltysh/qlty-action/coverage@v2'
         with:
-          oidc: true
+          token: ${{ secrets.QLTY_COVERAGE_TOKEN }}
           files: 'phpunit-coverage.xml'
