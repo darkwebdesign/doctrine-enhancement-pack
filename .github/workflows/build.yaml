@@ -12,6 +12,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  php-cs-fixer:
+    name: 'PHP CS Fixer'
+    runs-on: 'ubuntu-24.04'
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@v4'
+      - name: 'Setup PHP'
+        uses: 'shivammathur/setup-php@v2'
+        with:
+          php-version: '8.4'
+      - name: 'Composer Install'
+        uses: 'ramsey/composer-install@v3'
+      - name: 'PHP CS Fixer'
+        run: 'vendor/bin/php-cs-fixer fix --diff --dry-run --show-progress=none --ansi'
+
   phpunit:
     name: 'PHPUnit'
     runs-on: 'ubuntu-24.04'

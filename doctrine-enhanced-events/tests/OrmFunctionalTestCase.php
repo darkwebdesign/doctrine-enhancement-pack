@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2017-present DarkWeb Design
+ * Copyright (c) 2017-present DarkWeb Design.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -32,7 +32,7 @@ use Doctrine\ORM\Tools\SchemaTool;
 use Doctrine\ORM\Tools\Setup;
 use PHPUnit\Framework\TestCase;
 
-class OrmFunctionalTestCase extends TestCase
+abstract class OrmFunctionalTestCase extends TestCase
 {
     private const ENTITY_CLASSNAMES = [
         Person::class,
@@ -62,7 +62,7 @@ class OrmFunctionalTestCase extends TestCase
 
         $loader = new Loader();
         foreach (self::FIXTURE_CLASSNAMES as $fixtureClassname) {
-            $loader->addFixture(new $fixtureClassname);
+            $loader->addFixture(new $fixtureClassname());
         }
 
         $purger = new ORMPurger();

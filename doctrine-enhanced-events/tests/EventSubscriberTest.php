@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2017-present DarkWeb Design
+ * Copyright (c) 2017-present DarkWeb Design.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,9 @@ use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs;
 use Doctrine\ORM\EntityRepository;
 use PHPUnit\Framework\MockObject\MockObject;
 
+/**
+ * @covers \DarkWebDesign\DoctrineEnhancedEvents\EventSubscriber
+ */
 class EventSubscriberTest extends OrmFunctionalTestCase
 {
     /** @var EntityRepository */
@@ -45,13 +48,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         $this->repository = $this->entityManager->getRepository(Person::class);
 
-        $this->eventSubscriberMock = $this->createMock(EventSubscriberMock::class, [
-            'onFlushEnhanced',
-            'preUpdateEnhanced',
-            'postUpdateEnhanced',
-            'postFlushEnhanced',
-            'getSubscribedEvents'
-        ]);
+        $this->eventSubscriberMock = $this->createMock(EventSubscriberMock::class);
 
         $this->eventSubscriberMock
             ->expects($this->any())
@@ -78,27 +75,25 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         $mikeKennedy = $this->repository->findOneByName('Mike Kennedy');
 
-        $_this = $this;
-
-        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $zoeyPorter, $danielleMurphy, $mikeKennedy) {
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($zoeyPorter, $danielleMurphy, $mikeKennedy) {
             $entityInsertions = $args->getEntityInsertions();
             $objectHash = spl_object_hash($zoeyPorter);
-            $_this->assertCount(1, $entityInsertions);
-            $_this->assertArrayHasKey($objectHash, $entityInsertions);
-            $_this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
+            $this->assertCount(1, $entityInsertions);
+            $this->assertArrayHasKey($objectHash, $entityInsertions);
+            $this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
 
             $entityUpdates = $args->getEntityUpdates();
             $objectHash = spl_object_hash($danielleMurphy);
-            $_this->assertCount(1, $entityUpdates);
-            $_this->assertArrayHasKey($objectHash, $entityUpdates);
-            $_this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
-            $_this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
+            $this->assertCount(1, $entityUpdates);
+            $this->assertArrayHasKey($objectHash, $entityUpdates);
+            $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
+            $this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
 
             $entityDeletions = $args->getEntityDeletions();
             $objectHash = spl_object_hash($mikeKennedy);
-            $_this->assertCount(1, $entityDeletions);
-            $_this->assertArrayHasKey($objectHash, $entityDeletions);
-            $_this->assertSame($mikeKennedy, $entityDeletions[$objectHash]);
+            $this->assertCount(1, $entityDeletions);
+            $this->assertArrayHasKey($objectHash, $entityDeletions);
+            $this->assertSame($mikeKennedy, $entityDeletions[$objectHash]);
 
             return true;
         };
@@ -134,14 +129,12 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
         $danielleMurphy->setName('Danielle Sanders-Murphy');
 
-        $_this = $this;
+        $assertUpdateEventArgs = function (UpdateEventArgs $args) use ($danielleMurphy) {
+            $this->assertSame($danielleMurphy, $args->getEntity());
+            $this->assertSame('Danielle Murphy', $args->getOriginalEntity()->getName());
 
-        $assertUpdateEventArgs = function (UpdateEventArgs $args) use ($_this, $danielleMurphy) {
-            $_this->assertSame($danielleMurphy, $args->getEntity());
-            $_this->assertSame('Danielle Murphy', $args->getOriginalEntity()->getName());
-
-            $_this->assertSame($args->getEntity(), $args->getObject());
-            $_this->assertSame($args->getOriginalEntity(), $args->getOriginalObject());
+            $this->assertSame($args->getEntity(), $args->getObject());
+            $this->assertSame($args->getOriginalEntity(), $args->getOriginalObject());
 
             return true;
         };
@@ -179,14 +172,12 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             return true;
         };
 
-        $_this = $this;
-
-        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $zoeyPorter) {
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($zoeyPorter) {
             $entityInsertions = $args->getEntityInsertions();
             $objectHash = spl_object_hash($zoeyPorter);
-            $_this->assertCount(1, $entityInsertions);
-            $_this->assertArrayHasKey($objectHash, $entityInsertions);
-            $_this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
+            $this->assertCount(1, $entityInsertions);
+            $this->assertArrayHasKey($objectHash, $entityInsertions);
+            $this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
 
             return true;
         };
@@ -227,11 +218,9 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             return true;
         };
 
-        $_this = $this;
-
-        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this) {
+        $assertFlushEventArgs = function (FlushEventArgs $args) {
             $entityInsertions = $args->getEntityInsertions();
-            $_this->assertEmpty($entityInsertions);
+            $this->assertEmpty($entityInsertions);
 
             return true;
         };
@@ -269,21 +258,19 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             return true;
         };
 
-        $_this = $this;
-
-        $assertUpdateEventArgs = function (UpdateEventArgs $args) use ($_this) {
-            $_this->assertSame('Danielle Sanders', $args->getEntity()->getName());
+        $assertUpdateEventArgs = function (UpdateEventArgs $args) {
+            $this->assertSame('Danielle Sanders', $args->getEntity()->getName());
 
             return true;
         };
 
-        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $danielleMurphy) {
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($danielleMurphy) {
             $entityUpdates = $args->getEntityUpdates();
             $objectHash = spl_object_hash($danielleMurphy);
-            $_this->assertCount(1, $entityUpdates);
-            $_this->assertArrayHasKey($objectHash, $entityUpdates);
-            $_this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
-            $_this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
+            $this->assertCount(1, $entityUpdates);
+            $this->assertArrayHasKey($objectHash, $entityUpdates);
+            $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
+            $this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
 
             return true;
         };
@@ -336,17 +323,15 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             return true;
         };
 
-        $_this = $this;
-
-        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $danielleMurphy) {
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($danielleMurphy) {
             $entityUpdates = $args->getEntityUpdates();
-            $_this->assertEmpty($entityUpdates);
+            $this->assertEmpty($entityUpdates);
 
             $entityDeletions = $args->getEntityDeletions();
             $objectHash = spl_object_hash($danielleMurphy);
-            $_this->assertCount(1, $entityDeletions);
-            $_this->assertArrayHasKey($objectHash, $entityDeletions);
-            $_this->assertSame($danielleMurphy, $entityDeletions[$objectHash]);
+            $this->assertCount(1, $entityDeletions);
+            $this->assertArrayHasKey($objectHash, $entityDeletions);
+            $this->assertSame($danielleMurphy, $entityDeletions[$objectHash]);
 
             return true;
         };
@@ -386,11 +371,9 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             return true;
         };
 
-        $_this = $this;
-
-        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $mikeKennedy) {
+        $assertFlushEventArgs = function (FlushEventArgs $args) {
             $entityDeletions = $args->getEntityDeletions();
-            $_this->assertEmpty($entityDeletions);
+            $this->assertEmpty($entityDeletions);
 
             return true;
         };
@@ -429,24 +412,22 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             return true;
         };
 
-        $_this = $this;
-
-        $assertUpdateEventArgs = function (UpdateEventArgs $args) use ($_this) {
-            $_this->assertSame('Mike Jones', $args->getEntity()->getName());
+        $assertUpdateEventArgs = function (UpdateEventArgs $args) {
+            $this->assertSame('Mike Jones', $args->getEntity()->getName());
 
             return true;
         };
 
-        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $mikeKennedy) {
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($mikeKennedy) {
             $entityUpdates = $args->getEntityUpdates();
             $objectHash = spl_object_hash($mikeKennedy);
-            $_this->assertCount(1, $entityUpdates);
-            $_this->assertArrayHasKey($objectHash, $entityUpdates);
-            $_this->assertSame($mikeKennedy, $entityUpdates[$objectHash][1]);
-            $_this->assertSame('Mike Kennedy', $entityUpdates[$objectHash][0]->getName());
+            $this->assertCount(1, $entityUpdates);
+            $this->assertArrayHasKey($objectHash, $entityUpdates);
+            $this->assertSame($mikeKennedy, $entityUpdates[$objectHash][1]);
+            $this->assertSame('Mike Kennedy', $entityUpdates[$objectHash][0]->getName());
 
             $entityDeletions = $args->getEntityDeletions();
-            $_this->assertEmpty($entityDeletions);
+            $this->assertEmpty($entityDeletions);
 
             return true;
         };
@@ -498,17 +479,15 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             return true;
         };
 
-        $_this = $this;
-
-        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $zoeyPorter, $rebeccaAnderson) {
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($zoeyPorter, $rebeccaAnderson) {
             $entityInsertions = $args->getEntityInsertions();
             $objectHash = spl_object_hash($zoeyPorter);
-            $_this->assertCount(2, $entityInsertions);
-            $_this->assertArrayHasKey($objectHash, $entityInsertions);
-            $_this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
+            $this->assertCount(2, $entityInsertions);
+            $this->assertArrayHasKey($objectHash, $entityInsertions);
+            $this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
             $objectHash = spl_object_hash($rebeccaAnderson);
-            $_this->assertArrayHasKey($objectHash, $entityInsertions);
-            $_this->assertSame($rebeccaAnderson, $entityInsertions[$objectHash]);
+            $this->assertArrayHasKey($objectHash, $entityInsertions);
+            $this->assertSame($rebeccaAnderson, $entityInsertions[$objectHash]);
 
             return true;
         };
@@ -551,17 +530,15 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             return true;
         };
 
-        $_this = $this;
-
-        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $zoeyPorter) {
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($zoeyPorter) {
             $entityInsertions = $args->getEntityInsertions();
             $objectHash = spl_object_hash($zoeyPorter);
-            $_this->assertCount(1, $entityInsertions);
-            $_this->assertArrayHasKey($objectHash, $entityInsertions);
-            $_this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
+            $this->assertCount(1, $entityInsertions);
+            $this->assertArrayHasKey($objectHash, $entityInsertions);
+            $this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
 
             $entityUpdates = $args->getEntityUpdates();
-            $_this->assertEmpty($entityUpdates);
+            $this->assertEmpty($entityUpdates);
 
             return true;
         };
@@ -611,21 +588,19 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             return true;
         };
 
-        $_this = $this;
-
-        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $zoeyPorter, $danielleMurphy) {
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($zoeyPorter, $danielleMurphy) {
             $entityInsertions = $args->getEntityInsertions();
             $objectHash = spl_object_hash($zoeyPorter);
-            $_this->assertCount(1, $entityInsertions);
-            $_this->assertArrayHasKey($objectHash, $entityInsertions);
-            $_this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
+            $this->assertCount(1, $entityInsertions);
+            $this->assertArrayHasKey($objectHash, $entityInsertions);
+            $this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
 
             $entityUpdates = $args->getEntityUpdates();
             $objectHash = spl_object_hash($danielleMurphy);
-            $_this->assertCount(1, $entityUpdates);
-            $_this->assertArrayHasKey($objectHash, $entityUpdates);
-            $_this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
-            $_this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
+            $this->assertCount(1, $entityUpdates);
+            $this->assertArrayHasKey($objectHash, $entityUpdates);
+            $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
+            $this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
 
             return true;
         };
@@ -669,20 +644,18 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             return true;
         };
 
-        $_this = $this;
-
-        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $zoeyPorter, $mikeKennedy) {
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($zoeyPorter, $mikeKennedy) {
             $entityInsertions = $args->getEntityInsertions();
             $objectHash = spl_object_hash($zoeyPorter);
-            $_this->assertCount(1, $entityInsertions);
-            $_this->assertArrayHasKey($objectHash, $entityInsertions);
-            $_this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
+            $this->assertCount(1, $entityInsertions);
+            $this->assertArrayHasKey($objectHash, $entityInsertions);
+            $this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
 
             $entityDeletions = $args->getEntityDeletions();
             $objectHash = spl_object_hash($mikeKennedy);
-            $_this->assertCount(1, $entityDeletions);
-            $_this->assertArrayHasKey($objectHash, $entityDeletions);
-            $_this->assertSame($mikeKennedy, $entityDeletions[$objectHash]);
+            $this->assertCount(1, $entityDeletions);
+            $this->assertArrayHasKey($objectHash, $entityDeletions);
+            $this->assertSame($mikeKennedy, $entityDeletions[$objectHash]);
 
             return true;
         };
@@ -721,21 +694,19 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             return true;
         };
 
-        $_this = $this;
-
-        $assertUpdateEventArgs = function (UpdateEventArgs $args) use ($_this) {
-            $_this->assertSame('Danielle Sanders', $args->getEntity()->getName());
+        $assertUpdateEventArgs = function (UpdateEventArgs $args) {
+            $this->assertSame('Danielle Sanders', $args->getEntity()->getName());
 
             return true;
         };
 
-        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $danielleMurphy) {
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($danielleMurphy) {
             $entityUpdates = $args->getEntityUpdates();
             $objectHash = spl_object_hash($danielleMurphy);
-            $_this->assertCount(1, $entityUpdates);
-            $_this->assertArrayHasKey($objectHash, $entityUpdates);
-            $_this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
-            $_this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
+            $this->assertCount(1, $entityUpdates);
+            $this->assertArrayHasKey($objectHash, $entityUpdates);
+            $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
+            $this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
 
             return true;
         };
@@ -780,15 +751,13 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             return true;
         };
 
-        $_this = $this;
-
-        $assertFlushEventArgs = function (FlushEventArgs $args) use ($_this, $danielleMurphy) {
+        $assertFlushEventArgs = function (FlushEventArgs $args) use ($danielleMurphy) {
             $entityUpdates = $args->getEntityUpdates();
             $objectHash = spl_object_hash($danielleMurphy);
-            $_this->assertCount(1, $entityUpdates);
-            $_this->assertArrayHasKey($objectHash, $entityUpdates);
-            $_this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
-            $_this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
+            $this->assertCount(1, $entityUpdates);
+            $this->assertArrayHasKey($objectHash, $entityUpdates);
+            $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
+            $this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
 
             return true;
         };
@@ -857,48 +826,46 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
         $danielleMurphy->setName('Danielle Sanders-Murphy');
 
-        $_this = $this;
-
-        $assertFlushEventArgsOnFlush = function (FlushEventArgs $args) use ($_this, $zoeyPorter, $danielleMurphy) {
+        $assertFlushEventArgsOnFlush = function (FlushEventArgs $args) use ($zoeyPorter, $danielleMurphy) {
             static $callCounter = 0;
 
-            $callCounter++;
+            ++$callCounter;
 
             if ($callCounter === 1) {
                 $entityUpdates = $args->getEntityUpdates();
                 $objectHash = spl_object_hash($danielleMurphy);
-                $_this->assertCount(1, $entityUpdates);
-                $_this->assertArrayHasKey($objectHash, $entityUpdates);
-                $_this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
-                $_this->assertSame('Danielle Sanders-Murphy', $entityUpdates[$objectHash][1]->getName());
+                $this->assertCount(1, $entityUpdates);
+                $this->assertArrayHasKey($objectHash, $entityUpdates);
+                $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
+                $this->assertSame('Danielle Sanders-Murphy', $entityUpdates[$objectHash][1]->getName());
             }
 
             if ($callCounter === 2) {
                 $entityInsertions = $args->getEntityInsertions();
                 $objectHash = spl_object_hash($zoeyPorter);
-                $_this->assertCount(1, $entityInsertions);
-                $_this->assertArrayHasKey($objectHash, $entityInsertions);
-                $_this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
+                $this->assertCount(1, $entityInsertions);
+                $this->assertArrayHasKey($objectHash, $entityInsertions);
+                $this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
 
                 $entityUpdates = $args->getEntityUpdates();
                 $objectHash = spl_object_hash($danielleMurphy);
-                $_this->assertCount(1, $entityUpdates);
-                $_this->assertArrayHasKey($objectHash, $entityUpdates);
-                $_this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
-                $_this->assertSame('Danielle Sanders-Murphy', $entityUpdates[$objectHash][1]->getName());
+                $this->assertCount(1, $entityUpdates);
+                $this->assertArrayHasKey($objectHash, $entityUpdates);
+                $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
+                $this->assertSame('Danielle Sanders-Murphy', $entityUpdates[$objectHash][1]->getName());
             }
 
             return true;
         };
 
-        $nestedFlush = function () use ($_this, $zoeyPorter) {
+        $nestedFlush = function () use ($zoeyPorter) {
             static $callCounter = 0;
 
-            $callCounter++;
+            ++$callCounter;
 
             if ($callCounter === 1) {
-                $_this->entityManager->persist($zoeyPorter);
-                $_this->entityManager->flush($zoeyPorter);
+                $this->entityManager->persist($zoeyPorter);
+                $this->entityManager->flush($zoeyPorter);
             }
 
             return true;
@@ -911,35 +878,35 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             return true;
         };
 
-        $assertUpdateEventArgs = function (UpdateEventArgs $args) use ($_this) {
-            $_this->assertSame('Danielle Sanders-Murphy', $args->getEntity()->getName());
+        $assertUpdateEventArgs = function (UpdateEventArgs $args) {
+            $this->assertSame('Danielle Sanders-Murphy', $args->getEntity()->getName());
 
             return true;
         };
 
-        $assertFlushEventArgsPostFlush = function (FlushEventArgs $args) use ($_this, $zoeyPorter, $danielleMurphy) {
+        $assertFlushEventArgsPostFlush = function (FlushEventArgs $args) use ($zoeyPorter, $danielleMurphy) {
             static $callCounter = 0;
 
-            $callCounter++;
+            ++$callCounter;
 
             if ($callCounter === 1) {
                 $entityInsertions = $args->getEntityInsertions();
                 $objectHash = spl_object_hash($zoeyPorter);
-                $_this->assertCount(1, $entityInsertions);
-                $_this->assertArrayHasKey($objectHash, $entityInsertions);
-                $_this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
+                $this->assertCount(1, $entityInsertions);
+                $this->assertArrayHasKey($objectHash, $entityInsertions);
+                $this->assertSame($zoeyPorter, $entityInsertions[$objectHash]);
 
                 $entityUpdates = $args->getEntityUpdates();
                 $objectHash = spl_object_hash($danielleMurphy);
-                $_this->assertCount(1, $entityUpdates);
-                $_this->assertArrayHasKey($objectHash, $entityUpdates);
-                $_this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
-                $_this->assertSame('Danielle Sanders-Murphy', $entityUpdates[$objectHash][1]->getName());
+                $this->assertCount(1, $entityUpdates);
+                $this->assertArrayHasKey($objectHash, $entityUpdates);
+                $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
+                $this->assertSame('Danielle Sanders-Murphy', $entityUpdates[$objectHash][1]->getName());
             }
 
             if ($callCounter === 2) {
-                $_this->assertEmpty($args->getEntityInsertions());
-                $_this->assertEmpty($args->getEntityUpdates());
+                $this->assertEmpty($args->getEntityInsertions());
+                $this->assertEmpty($args->getEntityUpdates());
             }
 
             return true;

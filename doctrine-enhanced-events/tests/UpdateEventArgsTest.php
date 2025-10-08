@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2017-present DarkWeb Design
+ * Copyright (c) 2017-present DarkWeb Design.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,9 @@ use Doctrine\Persistence\ObjectManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * @covers \DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs
+ */
 class UpdateEventArgsTest extends TestCase
 {
     /** @var Person|MockObject */

@@ -16,6 +16,7 @@
     },
     "require-dev": {
         "doctrine/data-fixtures": "^1.5",
+        "friendsofphp/php-cs-fixer": "^3.4",
         "phpunit/phpunit": "^8.5"
     },
     "suggest": {

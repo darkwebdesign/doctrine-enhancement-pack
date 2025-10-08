@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2017-present DarkWeb Design
+ * Copyright (c) 2017-present DarkWeb Design.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -38,7 +38,6 @@ class UpdateEventArgs extends LifecycleEventArgs
     /**
      * @param object $object
      * @param object $originalObject
-     * @param \Doctrine\Persistence\ObjectManager $objectManager
      */
     public function __construct($object, $originalObject, ObjectManager $objectManager)
     {

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2017-present DarkWeb Design
+ * Copyright (c) 2017-present DarkWeb Design.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -29,8 +29,8 @@ namespace DarkWebDesign\DoctrineEnhancedEvents;
  */
 class Events
 {
-    const preUpdateEnhanced = 'preUpdateEnhanced';
-    const postUpdateEnhanced = 'postUpdateEnhanced';
-    const onFlushEnhanced = 'onFlushEnhanced';
-    const postFlushEnhanced = 'postFlushEnhanced';
+    public const preUpdateEnhanced = 'preUpdateEnhanced';
+    public const postUpdateEnhanced = 'postUpdateEnhanced';
+    public const onFlushEnhanced = 'onFlushEnhanced';
+    public const postFlushEnhanced = 'postFlushEnhanced';
 }
