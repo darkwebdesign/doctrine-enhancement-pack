@@ -33,6 +33,9 @@ use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * @covers \DarkWebDesign\DoctrineEnhancedEvents\EventSubscriber
+ *
+ * @uses \DarkWebDesign\DoctrineEnhancedEvents\FlushEventArgs
+ * @uses \DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs
  */
 class EventSubscriberTest extends OrmFunctionalTestCase
 {
