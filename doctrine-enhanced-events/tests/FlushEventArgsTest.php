@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2017-present DarkWeb Design.
+ * Copyright (c) 2025-present DarkWeb Design.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,40 +20,42 @@
 
 declare(strict_types=1);
 
-namespace DarkWebDesign\DoctrineEnhancedEvents\Tests;
-
-use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\Person;
-use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs;
-use Doctrine\Persistence\ObjectManager;
+use DarkWebDesign\DoctrineEnhancedEvents\FlushEventArgs;
+use Doctrine\ORM\EntityManager;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 /**
- * @covers \DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs
+ * @covers \DarkWebDesign\DoctrineEnhancedEvents\FlushEventArgs
  */
-class UpdateEventArgsTest extends TestCase
+class FlushEventArgsTest extends TestCase
 {
-    /** @var Person|MockObject */
-    private $entity;
+    /** @var array */
+    private $entityInsertions;
 
-    /** @var Person|MockObject */
-    private $originalEntity;
+    /** @var array */
+    private $entityUpdates;
 
-    /** @var ObjectManager|MockObject */
-    private $objectManager;
+    /** @var array */
+    private $entityDeletions;
+
+    /** @var EntityManager|MockObject */
+    private $entityManager;
 
     protected function setUp(): void
     {
-        $this->entity = $this->createMock(Person::class);
-        $this->originalEntity = $this->createMock(Person::class);
-        $this->objectManager = $this->createMock(ObjectManager::class);
+        $this->entityInsertions = [];
+        $this->entityUpdates = [];
+        $this->entityDeletions = [];
+        $this->entityManager = $this->createMock(EntityManager::class);
     }
 
     public function testGetters(): void
     {
-        $updateEventArgs = new UpdateEventArgs($this->entity, $this->originalEntity, $this->objectManager);
+        $updateEventArgs = new FlushEventArgs($this->entityInsertions, $this->entityUpdates, $this->entityDeletions, $this->entityManager);
 
-        $this->assertSame($this->originalEntity, $updateEventArgs->getOriginalEntity());
-        $this->assertSame($this->originalEntity, $updateEventArgs->getOriginalObject());
+        $this->assertSame($this->entityInsertions, $updateEventArgs->getEntityInsertions());
+        $this->assertSame($this->entityUpdates, $updateEventArgs->getEntityUpdates());
+        $this->assertSame($this->entityDeletions, $updateEventArgs->getEntityDeletions());
     }
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2018-present DarkWeb Design
+ * Copyright (c) 2018-present DarkWeb Design.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -41,12 +41,6 @@ class FlushEventArgs extends OnFlushEventArgs
     /** @var array */
     private $entityDeletions;
 
-    /**
-     * @param array $entityInsertions
-     * @param array $entityUpdates
-     * @param array $entityDeletions
-     * @param \Doctrine\ORM\EntityManager $entityManager
-     */
     public function __construct(array $entityInsertions, array $entityUpdates, array $entityDeletions, EntityManager $entityManager)
     {
         parent::__construct($entityManager);

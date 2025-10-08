@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2025-present DarkWeb Design
+ * Copyright (c) 2025-present DarkWeb Design.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -64,7 +64,7 @@ class Person
 
     public function __construct()
     {
-        $this->friends = new ArrayCollection;
+        $this->friends = new ArrayCollection();
     }
 
     public function getId()

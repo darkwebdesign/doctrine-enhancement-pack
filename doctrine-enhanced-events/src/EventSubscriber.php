@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2017-present DarkWeb Design
+ * Copyright (c) 2017-present DarkWeb Design.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -47,9 +47,6 @@ class EventSubscriber implements DoctrineEventSubscriber
     /** @var array */
     private $entityDeletions = [];
 
-    /**
-     * @param \Doctrine\ORM\Event\OnFlushEventArgs $eventArgs
-     */
     public function onFlush(OnFlushEventArgs $eventArgs)
     {
         $entityManager = $eventArgs->getEntityManager();
@@ -89,9 +86,6 @@ class EventSubscriber implements DoctrineEventSubscriber
         }
     }
 
-    /**
-     * @param \Doctrine\ORM\Event\PreUpdateEventArgs $eventArgs
-     */
     public function preUpdate(PreUpdateEventArgs $eventArgs)
     {
         $entity = $eventArgs->getObject();
@@ -108,9 +102,6 @@ class EventSubscriber implements DoctrineEventSubscriber
         $eventManager->dispatchEvent(Events::preUpdateEnhanced, $eventArgs);
     }
 
-    /**
-     * @param \Doctrine\ORM\Event\LifecycleEventArgs $eventArgs
-     */
     public function postUpdate(LifecycleEventArgs $eventArgs)
     {
         $entity = $eventArgs->getObject();
@@ -127,9 +118,6 @@ class EventSubscriber implements DoctrineEventSubscriber
         $eventManager->dispatchEvent(Events::postUpdateEnhanced, $eventArgs);
     }
 
-    /**
-     * @param \Doctrine\ORM\Event\PostFlushEventArgs $eventArgs
-     */
     public function postFlush(PostFlushEventArgs $eventArgs)
     {
         $entityManager = $eventArgs->getEntityManager();
@@ -146,14 +134,13 @@ class EventSubscriber implements DoctrineEventSubscriber
 
         $eventManager->dispatchEvent(Events::postFlushEnhanced, $eventArgs);
 
-        unset($this->entityInsertions[$transactionNestingLevel]);
-        unset($this->entityUpdates[$transactionNestingLevel]);
-        unset($this->entityDeletions[$transactionNestingLevel]);
+        unset(
+            $this->entityInsertions[$transactionNestingLevel],
+            $this->entityUpdates[$transactionNestingLevel],
+            $this->entityDeletions[$transactionNestingLevel]
+        );
     }
 
-    /**
-     * @param \Doctrine\ORM\EntityManager $entityManager
-     */
     private function cacheContext(EntityManager $entityManager)
     {
         $unitOfWork = $entityManager->getUnitOfWork();
@@ -174,7 +161,6 @@ class EventSubscriber implements DoctrineEventSubscriber
     }
 
     /**
-     * @param \Doctrine\ORM\EntityManager $entityManager
      * @param object $entity
      */
     private function addEntityUpdate(EntityManager $entityManager, $entity)
@@ -188,7 +174,6 @@ class EventSubscriber implements DoctrineEventSubscriber
     }
 
     /**
-     * @param \Doctrine\ORM\EntityManager $entityManager
      * @param object $entity
      *
      * @return object
@@ -211,7 +196,6 @@ class EventSubscriber implements DoctrineEventSubscriber
     }
 
     /**
-     * @param \Doctrine\ORM\EntityManager $entityManager
      * @param object $entity
      *
      * @return bool
