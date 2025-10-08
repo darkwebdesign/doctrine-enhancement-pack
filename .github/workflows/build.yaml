@@ -21,7 +21,7 @@ jobs:
       - name: 'Setup PHP'
         uses: 'shivammathur/setup-php@v2'
         with:
-          php-version: '8.4'
+          php-version: '7.2'
       - name: 'Composer Install'
         uses: 'ramsey/composer-install@v3'
       - name: 'PHP CS Fixer'
