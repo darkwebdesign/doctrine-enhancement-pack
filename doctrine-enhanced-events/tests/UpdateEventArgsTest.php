@@ -22,30 +22,31 @@ declare(strict_types=1);
 
 namespace DarkWebDesign\DoctrineEnhancedEvents\Tests;
 
+use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\Person;
 use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs;
-use DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson;
 use Doctrine\Persistence\ObjectManager;
+use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
 class UpdateEventArgsTest extends TestCase
 {
-    /** @var \DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var Person|MockObject */
     private $entity;
 
-    /** @var \DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var Person|MockObject */
     private $originalEntity;
 
-    /** @var \Doctrine\Persistence\ObjectManager|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var ObjectManager|MockObject */
     private $objectManager;
 
     protected function setUp(): void
     {
-        $this->entity = $this->createMock(CompanyPerson::class);
-        $this->originalEntity = $this->createMock(CompanyPerson::class);
+        $this->entity = $this->createMock(Person::class);
+        $this->originalEntity = $this->createMock(Person::class);
         $this->objectManager = $this->createMock(ObjectManager::class);
     }
 
-    public function testGetters()
+    public function testGetters(): void
     {
         $updateEventArgs = new UpdateEventArgs($this->entity, $this->originalEntity, $this->objectManager);
 
