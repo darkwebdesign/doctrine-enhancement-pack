@@ -20,30 +20,30 @@
 
 namespace DarkWebDesign\DoctrineEnhancedEvents\Tests\Fixtures;
 
-use DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson;
+use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\Person;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class CompanyPersonLoader implements FixtureInterface
+class PersonDataLoader implements FixtureInterface
 {
     public function load(ObjectManager $manager)
     {
-        $mitchellSanders = new CompanyPerson();
+        $mitchellSanders = new Person();
         $mitchellSanders->setName('Mitchell Sanders');
 
-        $madisonSmith = new CompanyPerson();
+        $madisonSmith = new Person();
         $madisonSmith->setName('Madison Smith');
 
-        $melanieWest = new CompanyPerson();
+        $melanieWest = new Person();
         $melanieWest->setName('Melanie West');
 
-        $danielleMurphy = new CompanyPerson();
+        $danielleMurphy = new Person();
         $danielleMurphy->setName('Danielle Murphy');
         $danielleMurphy->setSpouse($mitchellSanders);
         $danielleMurphy->addFriend($madisonSmith);
         $danielleMurphy->addFriend($melanieWest);
 
-        $mikeKennedy = new CompanyPerson();
+        $mikeKennedy = new Person();
         $mikeKennedy->setName('Mike Kennedy');
 
         $manager->persist($mitchellSanders);

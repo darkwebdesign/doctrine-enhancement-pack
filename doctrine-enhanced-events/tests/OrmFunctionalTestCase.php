@@ -22,46 +22,51 @@ declare(strict_types=1);
 
 namespace DarkWebDesign\DoctrineEnhancedEvents\Tests;
 
-use DarkWebDesign\DoctrineEnhancedEvents\Tests\Fixtures\CompanyPersonLoader;
-use DarkWebDesign\DoctrineUnitTesting\OrmFunctionalTestCase as BaseOrmFunctionalTestCase;
+use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\Person;
+use DarkWebDesign\DoctrineEnhancedEvents\Tests\Fixtures\PersonDataLoader;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\Loader;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Tools\SchemaTool;
+use Doctrine\ORM\Tools\Setup;
+use PHPUnit\Framework\TestCase;
 
-class OrmFunctionalTestCase extends BaseOrmFunctionalTestCase
+class OrmFunctionalTestCase extends TestCase
 {
-    /** @var array */
-    protected $usedFixtureSets = [];
-
-    /** @var array */
-    protected $fixtureSets = [
-        'company' => [
-            CompanyPersonLoader::class,
-        ],
+    private const ENTITY_CLASSNAMES = [
+        Person::class,
     ];
 
-    /**
-     * @param string $setName
-     */
-    protected function useFixtureSet($setName)
-    {
-        $this->usedFixtureSets[$setName] = true;
-    }
+    private const FIXTURE_CLASSNAMES = [
+        PersonDataLoader::class,
+    ];
+
+    /** @var EntityManager */
+    protected $entityManager;
 
     protected function setUp(): void
     {
-        parent::setUp();
+        $this->entityManager = EntityManager::create(
+            ['driver' => 'pdo_sqlite', 'memory' => true],
+            Setup::createAnnotationMetadataConfiguration([__DIR__ . '/Entities'], true)
+        );
+
+        $classes = [];
+        foreach (self::ENTITY_CLASSNAMES as $entityClassname) {
+            $classes[] = $this->entityManager->getClassMetadata($entityClassname);
+        }
+
+        $schemaTool = new SchemaTool($this->entityManager);
+        $schemaTool->createSchema($classes);
 
         $loader = new Loader();
-
-        foreach ($this->usedFixtureSets as $setName => $bool) {
-            foreach ($this->fixtureSets[$setName] as $className) {
-                $loader->addFixture(new $className);
-            }
+        foreach (self::FIXTURE_CLASSNAMES as $fixtureClassname) {
+            $loader->addFixture(new $fixtureClassname);
         }
 
         $purger = new ORMPurger();
-        $executor = new ORMExecutor($this->_em, $purger);
+        $executor = new ORMExecutor($this->entityManager, $purger);
         $executor->execute($loader->getFixtures(), true);
     }
 }

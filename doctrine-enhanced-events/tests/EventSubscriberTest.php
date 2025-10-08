@@ -25,26 +25,25 @@ namespace DarkWebDesign\DoctrineEnhancedEvents\Tests;
 use DarkWebDesign\DoctrineEnhancedEvents\Events;
 use DarkWebDesign\DoctrineEnhancedEvents\EventSubscriber;
 use DarkWebDesign\DoctrineEnhancedEvents\FlushEventArgs;
+use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\Person;
 use DarkWebDesign\DoctrineEnhancedEvents\Tests\Mocks\EventSubscriberMock;
 use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs;
-use DarkWebDesign\DoctrineUnitTesting\Models\Company\CompanyPerson;
+use Doctrine\ORM\EntityRepository;
+use PHPUnit\Framework\MockObject\MockObject;
 
 class EventSubscriberTest extends OrmFunctionalTestCase
 {
-    /** @var \Doctrine\ORM\EntityRepository */
+    /** @var EntityRepository */
     private $repository;
 
-    /** @var \Doctrine\Common\EventSubscriber|\PHPUnit\Framework\MockObject\MockObject */
+    /** @var EventSubscriberMock|MockObject */
     private $eventSubscriberMock;
 
     protected function setUp(): void
     {
-        $this->useModelSet('company');
-        $this->useFixtureSet('company');
-
         parent::setUp();
 
-        $this->repository = $this->_em->getRepository(CompanyPerson::class);
+        $this->repository = $this->entityManager->getRepository(Person::class);
 
         $this->eventSubscriberMock = $this->createMock(EventSubscriberMock::class, [
             'onFlushEnhanced',
@@ -64,14 +63,14 @@ class EventSubscriberTest extends OrmFunctionalTestCase
                 Events::postFlushEnhanced,
             ]));
 
-        $eventManager = static::$_sharedConn->getEventManager();
+        $eventManager = $this->entityManager->getEventManager();
         $eventManager->addEventSubscriber(new EventSubscriber());
         $eventManager->addEventSubscriber($this->eventSubscriberMock);
     }
 
-    public function testFlushEventArgs()
+    public function testFlushEventArgs(): void
     {
-        $zoeyPorter = new CompanyPerson();
+        $zoeyPorter = new Person();
         $zoeyPorter->setName('Zoey Porter');
 
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
@@ -114,10 +113,10 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             ->method('postFlushEnhanced')
             ->with($this->callback($assertFlushEventArgs));
 
-        $this->_em->persist($zoeyPorter);
-        $this->_em->persist($danielleMurphy);
-        $this->_em->remove($mikeKennedy);
-        $this->_em->flush();
+        $this->entityManager->persist($zoeyPorter);
+        $this->entityManager->persist($danielleMurphy);
+        $this->entityManager->remove($mikeKennedy);
+        $this->entityManager->flush();
 
         $zoeyPorter = $this->repository->findOneByName('Zoey Porter');
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
@@ -130,7 +129,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNull($mikeKennedy);
     }
 
-    public function testUpdateEventArgs()
+    public function testUpdateEventArgs(): void
     {
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
         $danielleMurphy->setName('Danielle Sanders-Murphy');
@@ -157,8 +156,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             ->method('postUpdateEnhanced')
             ->with($this->callback($assertUpdateEventArgs));
 
-        $this->_em->persist($danielleMurphy);
-        $this->_em->flush();
+        $this->entityManager->persist($danielleMurphy);
+        $this->entityManager->flush();
 
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
         $danielleSandersMurphy = $this->repository->findOneByName('Danielle Sanders-Murphy');
@@ -167,9 +166,9 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNotNull($danielleSandersMurphy);
     }
 
-    public function testUpdateEntityInsertionOnFlush()
+    public function testUpdateEntityInsertionOnFlush(): void
     {
-        $zoeyPorter = new CompanyPerson();
+        $zoeyPorter = new Person();
         $zoeyPorter->setName('Zoey Porter');
 
         $updateEntity = function (FlushEventArgs $args) use ($zoeyPorter) {
@@ -202,8 +201,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             ->method('postFlushEnhanced')
             ->with($this->callback($assertFlushEventArgs));
 
-        $this->_em->persist($zoeyPorter);
-        $this->_em->flush();
+        $this->entityManager->persist($zoeyPorter);
+        $this->entityManager->flush();
 
         $this->assertSame('Zoey Dawson-Porter', $zoeyPorter->getName());
 
@@ -214,9 +213,9 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNotNull($zoeyDawsonPorter);
     }
 
-    public function testRemoveEntityInsertionOnFlush()
+    public function testRemoveEntityInsertionOnFlush(): void
     {
-        $zoeyPorter = new CompanyPerson();
+        $zoeyPorter = new Person();
         $zoeyPorter->setName('Zoey Porter');
 
         $removeEntity = function (FlushEventArgs $args) use ($zoeyPorter) {
@@ -247,8 +246,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             ->method('postFlushEnhanced')
             ->with($this->callback($assertFlushEventArgs));
 
-        $this->_em->persist($zoeyPorter);
-        $this->_em->flush();
+        $this->entityManager->persist($zoeyPorter);
+        $this->entityManager->flush();
 
         $this->assertSame('Zoey Porter', $zoeyPorter->getName());
 
@@ -257,7 +256,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNull($zoeyPorter);
     }
 
-    public function testUpdateEntityUpdateOnFlush()
+    public function testUpdateEntityUpdateOnFlush(): void
     {
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
         $danielleMurphy->setName('Danielle Sanders-Murphy');
@@ -309,8 +308,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             ->method('postFlushEnhanced')
             ->with($this->callback($assertFlushEventArgs));
 
-        $this->_em->persist($danielleMurphy);
-        $this->_em->flush();
+        $this->entityManager->persist($danielleMurphy);
+        $this->entityManager->flush();
 
         $this->assertSame('Danielle Sanders', $danielleMurphy->getName());
 
@@ -323,7 +322,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNotNull($danielleSanders);
     }
 
-    public function testRemoveEntityUpdateOnFlush()
+    public function testRemoveEntityUpdateOnFlush(): void
     {
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
         $danielleMurphy->setName('Danielle Sanders-Murphy');
@@ -362,8 +361,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             ->method('postFlushEnhanced')
             ->with($this->callback($assertFlushEventArgs));
 
-        $this->_em->persist($danielleMurphy);
-        $this->_em->flush();
+        $this->entityManager->persist($danielleMurphy);
+        $this->entityManager->flush();
 
         $this->assertSame('Danielle Sanders-Murphy', $danielleMurphy->getName());
 
@@ -374,7 +373,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNull($danielleSandersMurphy);
     }
 
-    public function testPersistEntityDeletionOnFlush()
+    public function testPersistEntityDeletionOnFlush(): void
     {
         $mikeKennedy = $this->repository->findOneByName('Mike Kennedy');
 
@@ -406,8 +405,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             ->method('postFlushEnhanced')
             ->with($this->callback($assertFlushEventArgs));
 
-        $this->_em->remove($mikeKennedy);
-        $this->_em->flush();
+        $this->entityManager->remove($mikeKennedy);
+        $this->entityManager->flush();
 
         $this->assertSame('Mike Kennedy', $mikeKennedy->getName());
 
@@ -416,7 +415,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNotNull($mikeKennedy);
     }
 
-    public function testUpdateEntityDeletionOnFlush()
+    public function testUpdateEntityDeletionOnFlush(): void
     {
         $mikeKennedy = $this->repository->findOneByName('Mike Kennedy');
 
@@ -472,8 +471,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             ->method('postFlushEnhanced')
             ->with($this->callback($assertFlushEventArgs));
 
-        $this->_em->remove($mikeKennedy);
-        $this->_em->flush();
+        $this->entityManager->remove($mikeKennedy);
+        $this->entityManager->flush();
 
         $this->assertSame('Mike Jones', $mikeKennedy->getName());
 
@@ -484,12 +483,12 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNotNull($mikeJones);
     }
 
-    public function testPersistNewEntityOnFlush()
+    public function testPersistNewEntityOnFlush(): void
     {
-        $zoeyPorter = new CompanyPerson();
+        $zoeyPorter = new Person();
         $zoeyPorter->setName('Zoey Porter');
 
-        $rebeccaAnderson = new CompanyPerson();
+        $rebeccaAnderson = new Person();
 
         $persistNewEntity = function (FlushEventArgs $args) use ($rebeccaAnderson) {
             $entityManager = $args->getEntityManager();
@@ -524,8 +523,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             ->method('postFlushEnhanced')
             ->with($this->callback($assertFlushEventArgs));
 
-        $this->_em->persist($zoeyPorter);
-        $this->_em->flush();
+        $this->entityManager->persist($zoeyPorter);
+        $this->entityManager->flush();
 
         $this->assertSame('Zoey Porter', $zoeyPorter->getName());
         $this->assertSame('Rebecca Anderson', $rebeccaAnderson->getName());
@@ -537,9 +536,9 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNotNull($rebeccaAnderson);
     }
 
-    public function testUpdateNewEntityOnFlushIgnored()
+    public function testUpdateNewEntityOnFlushIgnored(): void
     {
-        $zoeyPorter = new CompanyPerson();
+        $zoeyPorter = new Person();
         $zoeyPorter->setName('Zoey Porter');
 
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
@@ -577,8 +576,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             ->method('postFlushEnhanced')
             ->with($this->callback($assertFlushEventArgs));
 
-        $this->_em->persist($zoeyPorter);
-        $this->_em->flush();
+        $this->entityManager->persist($zoeyPorter);
+        $this->entityManager->flush();
 
         $this->assertSame('Zoey Porter', $zoeyPorter->getName());
         $this->assertSame('Danielle Sanders-Murphy', $danielleMurphy->getName());
@@ -592,9 +591,9 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNull($danielleSandersMurphy);
     }
 
-    public function testUpdateNewEntityOnFlushManualRecompute()
+    public function testUpdateNewEntityOnFlushManualRecompute(): void
     {
-        $zoeyPorter = new CompanyPerson();
+        $zoeyPorter = new Person();
         $zoeyPorter->setName('Zoey Porter');
 
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
@@ -641,8 +640,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             ->method('postFlushEnhanced')
             ->with($this->callback($assertFlushEventArgs));
 
-        $this->_em->persist($zoeyPorter);
-        $this->_em->flush();
+        $this->entityManager->persist($zoeyPorter);
+        $this->entityManager->flush();
 
         $this->assertSame('Zoey Porter', $zoeyPorter->getName());
         $this->assertSame('Danielle Sanders-Murphy', $danielleMurphy->getName());
@@ -656,9 +655,9 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNotNull($danielleSandersMurphy);
     }
 
-    public function testRemoveNewEntityOnFlush()
+    public function testRemoveNewEntityOnFlush(): void
     {
-        $zoeyPorter = new CompanyPerson();
+        $zoeyPorter = new Person();
         $zoeyPorter->setName('Zoey Porter');
 
         $mikeKennedy = $this->repository->findOneByName('Mike Kennedy');
@@ -698,8 +697,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             ->method('postFlushEnhanced')
             ->with($this->callback($assertFlushEventArgs));
 
-        $this->_em->persist($zoeyPorter);
-        $this->_em->flush();
+        $this->entityManager->persist($zoeyPorter);
+        $this->entityManager->flush();
 
         $this->assertSame('Zoey Porter', $zoeyPorter->getName());
         $this->assertSame('Mike Kennedy', $mikeKennedy->getName());
@@ -711,7 +710,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNull($mikeKennedy);
     }
 
-    public function testUpdateEntityPreUpdate()
+    public function testUpdateEntityPreUpdate(): void
     {
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
         $danielleMurphy->setName('Danielle Sanders-Murphy');
@@ -756,8 +755,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             ->method('postFlushEnhanced')
             ->with($this->callback($assertFlushEventArgs));
 
-        $this->_em->persist($danielleMurphy);
-        $this->_em->flush($danielleMurphy);
+        $this->entityManager->persist($danielleMurphy);
+        $this->entityManager->flush($danielleMurphy);
 
         $this->assertSame('Danielle Sanders', $danielleMurphy->getName());
 
@@ -770,7 +769,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNotNull($danielleSanders);
     }
 
-    public function testUpdateEntityPostUpdateIgnored()
+    public function testUpdateEntityPostUpdateIgnored(): void
     {
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
         $danielleMurphy->setName('Danielle Sanders-Murphy');
@@ -804,8 +803,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             ->method('postFlushEnhanced')
             ->with($this->callback($assertFlushEventArgs));
 
-        $this->_em->persist($danielleMurphy);
-        $this->_em->flush($danielleMurphy);
+        $this->entityManager->persist($danielleMurphy);
+        $this->entityManager->flush($danielleMurphy);
 
         $this->assertSame('Danielle Sanders', $danielleMurphy->getName());
 
@@ -818,7 +817,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNull($danielleSanders);
     }
 
-    public function testUpdateEntityPostFlushIgnored()
+    public function testUpdateEntityPostFlushIgnored(): void
     {
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
         $danielleMurphy->setName('Danielle Sanders-Murphy');
@@ -836,8 +835,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             ->method('postFlushEnhanced')
             ->with($this->callback($updateEntity));
 
-        $this->_em->persist($danielleMurphy);
-        $this->_em->flush($danielleMurphy);
+        $this->entityManager->persist($danielleMurphy);
+        $this->entityManager->flush($danielleMurphy);
 
         $this->assertSame('Danielle Sanders', $danielleMurphy->getName());
 
@@ -850,9 +849,9 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNull($danielleSanders);
     }
 
-    public function testNestedFlushes()
+    public function testNestedFlushes(): void
     {
-        $zoeyPorter = new CompanyPerson();
+        $zoeyPorter = new Person();
         $zoeyPorter->setName('Zoey Porter');
 
         $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
@@ -898,8 +897,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             $callCounter++;
 
             if ($callCounter === 1) {
-                $_this->_em->persist($zoeyPorter);
-                $_this->_em->flush($zoeyPorter);
+                $_this->entityManager->persist($zoeyPorter);
+                $_this->entityManager->flush($zoeyPorter);
             }
 
             return true;
@@ -966,8 +965,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             ->method('postFlushEnhanced')
             ->with($this->callback($assertFlushEventArgsPostFlush));
 
-        $this->_em->persist($danielleMurphy);
-        $this->_em->flush($danielleMurphy);
+        $this->entityManager->persist($danielleMurphy);
+        $this->entityManager->flush($danielleMurphy);
 
         $this->assertSame('Danielle Sanders-Murphy', $danielleMurphy->getName());
 

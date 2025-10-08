@@ -15,8 +15,7 @@
         "php": "^7.2|^8.0"
     },
     "require-dev": {
-        "darkwebdesign/doctrine-unit-testing": "2.7.*",
-        "doctrine/data-fixtures": "^1.1",
+        "doctrine/data-fixtures": "^1.5",
         "phpunit/phpunit": "^7.5"
     },
     "suggest": {
