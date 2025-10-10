@@ -23,6 +23,16 @@ declare(strict_types=1);
 namespace DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\JoinTable;
+use Doctrine\ORM\Mapping\ManyToMany;
+use Doctrine\ORM\Mapping\OneToOne;
+use Doctrine\ORM\Mapping\Table;
 
 /**
  * @Entity
@@ -34,17 +44,23 @@ class Person
      * @Id
      * @Column(type="integer")
      * @GeneratedValue
+     *
+     * @var int|null
      */
     private $id;
 
     /**
      * @Column
+     *
+     * @var string
      */
     private $name;
 
     /**
      * @OneToOne(targetEntity="Person")
-     * @JoinColumn(name="spouse_id", referencedColumnName="id", onDelete="CASCADE")
+     * @JoinColumn(name="spouse_id", referencedColumnName="id")
+     *
+     * @var Person|null
      */
     private $spouse;
 
@@ -53,12 +69,14 @@ class Person
      * @JoinTable(
      *     name="person_friend",
      *     joinColumns={
-     *         @JoinColumn(name="person_id", referencedColumnName="id", onDelete="CASCADE")
+     *         @JoinColumn(name="person_id", referencedColumnName="id")
      *     },
      *     inverseJoinColumns={
-     *         @JoinColumn(name="friend_id", referencedColumnName="id", onDelete="CASCADE")
+     *         @JoinColumn(name="friend_id", referencedColumnName="id")
      *     }
      * )
+     *
+     * @var Collection<int, Person>
      */
     private $friends;
 
@@ -67,44 +85,48 @@ class Person
         $this->friends = new ArrayCollection();
     }
 
-    public function getId()
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function getName()
+    public function setId(?int $id): void
+    {
+        $this->id = $id;
+    }
+
+    public function getName(): string
     {
         return $this->name;
     }
 
-    public function setName($name)
+    public function setName(string $name): void
     {
         $this->name = $name;
     }
 
-    public function getSpouse()
+    public function getSpouse(): ?Person
     {
         return $this->spouse;
     }
 
-    public function getFriends()
+    public function setSpouse(?Person $spouse): void
+    {
+        $this->spouse = $spouse;
+    }
+
+    /**
+     * @return Collection<int, Person>
+     */
+    public function getFriends(): Collection
     {
         return $this->friends;
     }
 
-    public function addFriend(Person $friend)
+    public function addFriend(Person $friend): void
     {
         if (!$this->friends->contains($friend)) {
             $this->friends->add($friend);
-            $friend->addFriend($this);
-        }
-    }
-
-    public function setSpouse(Person $spouse)
-    {
-        if ($spouse !== $this->spouse) {
-            $this->spouse = $spouse;
-            $this->spouse->setSpouse($this);
         }
     }
 }

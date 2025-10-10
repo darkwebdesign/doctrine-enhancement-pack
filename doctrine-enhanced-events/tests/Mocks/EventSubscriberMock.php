@@ -28,23 +28,23 @@ use Doctrine\Common\EventSubscriber;
 
 class EventSubscriberMock implements EventSubscriber
 {
-    public function onFlushEnhanced(FlushEventArgs $eventArgs)
+    public function onFlushEnhanced(FlushEventArgs $eventArgs): void
     {
     }
 
-    public function preUpdateEnhanced(UpdateEventArgs $eventArgs)
+    public function preUpdateEnhanced(UpdateEventArgs $eventArgs): void
     {
     }
 
-    public function postUpdateEnhanced(UpdateEventArgs $eventArgs)
+    public function postUpdateEnhanced(UpdateEventArgs $eventArgs): void
     {
     }
 
-    public function postFlushEnhanced(FlushEventArgs $eventArgs)
+    public function postFlushEnhanced(FlushEventArgs $eventArgs): void
     {
     }
 
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [];
     }

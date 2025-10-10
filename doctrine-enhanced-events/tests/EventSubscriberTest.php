@@ -39,7 +39,7 @@ use PHPUnit\Framework\MockObject\MockObject;
  */
 class EventSubscriberTest extends OrmFunctionalTestCase
 {
-    /** @var EntityRepository */
+    /** @var EntityRepository<Person> */
     private $repository;
 
     /** @var EventSubscriberMock|MockObject */
@@ -73,10 +73,13 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $zoeyPorter = new Person();
         $zoeyPorter->setName('Zoey Porter');
 
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
-        $danielleMurphy->setName('Danielle Sanders-Murphy');
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+        $mikeKennedy = $this->repository->findOneBy(['name' => 'Mike Kennedy']);
 
-        $mikeKennedy = $this->repository->findOneByName('Mike Kennedy');
+        $this->assertNotNull($danielleMurphy);
+        $this->assertNotNull($mikeKennedy);
+
+        $danielleMurphy->setName('Danielle Sanders-Murphy');
 
         $assertFlushEventArgs = function (FlushEventArgs $args) use ($zoeyPorter, $danielleMurphy, $mikeKennedy) {
             $entityInsertions = $args->getEntityInsertions();
@@ -89,8 +92,11 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             $objectHash = spl_object_hash($danielleMurphy);
             $this->assertCount(1, $entityUpdates);
             $this->assertArrayHasKey($objectHash, $entityUpdates);
-            $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
+            $this->assertArrayHasKey(0, $entityUpdates[$objectHash]);
+            $this->assertInstanceOf(Person::class, $entityUpdates[$objectHash][0]);
             $this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
+            $this->assertArrayHasKey(1, $entityUpdates[$objectHash]);
+            $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
 
             $entityDeletions = $args->getEntityDeletions();
             $objectHash = spl_object_hash($mikeKennedy);
@@ -116,10 +122,10 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->entityManager->remove($mikeKennedy);
         $this->entityManager->flush();
 
-        $zoeyPorter = $this->repository->findOneByName('Zoey Porter');
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
-        $danielleSandersMurphy = $this->repository->findOneByName('Danielle Sanders-Murphy');
-        $mikeKennedy = $this->repository->findOneByName('Mike Kennedy');
+        $zoeyPorter = $this->repository->findOneBy(['name' => 'Zoey Porter']);
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+        $danielleSandersMurphy = $this->repository->findOneBy(['name' => 'Danielle Sanders-Murphy']);
+        $mikeKennedy = $this->repository->findOneBy(['name' => 'Mike Kennedy']);
 
         $this->assertNotNull($zoeyPorter);
         $this->assertNull($danielleMurphy);
@@ -129,11 +135,15 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
     public function testUpdateEventArgs(): void
     {
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+
+        $this->assertNotNull($danielleMurphy);
+
         $danielleMurphy->setName('Danielle Sanders-Murphy');
 
         $assertUpdateEventArgs = function (UpdateEventArgs $args) use ($danielleMurphy) {
             $this->assertSame($danielleMurphy, $args->getEntity());
+            $this->assertInstanceOf(Person::class, $args->getOriginalEntity());
             $this->assertSame('Danielle Murphy', $args->getOriginalEntity()->getName());
 
             $this->assertSame($args->getEntity(), $args->getObject());
@@ -155,8 +165,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->entityManager->persist($danielleMurphy);
         $this->entityManager->flush();
 
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
-        $danielleSandersMurphy = $this->repository->findOneByName('Danielle Sanders-Murphy');
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+        $danielleSandersMurphy = $this->repository->findOneBy(['name' => 'Danielle Sanders-Murphy']);
 
         $this->assertNull($danielleMurphy);
         $this->assertNotNull($danielleSandersMurphy);
@@ -170,6 +180,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $updateEntity = function (FlushEventArgs $args) use ($zoeyPorter) {
             $entityInsertions = $args->getEntityInsertions();
             $objectHash = spl_object_hash($zoeyPorter);
+            $this->assertArrayHasKey($objectHash, $entityInsertions);
+            $this->assertInstanceOf(Person::class, $entityInsertions[$objectHash]);
             $entityInsertions[$objectHash]->setName('Zoey Dawson-Porter');
 
             return true;
@@ -200,8 +212,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         $this->assertSame('Zoey Dawson-Porter', $zoeyPorter->getName());
 
-        $zoeyPorter = $this->repository->findOneByName('Zoey Porter');
-        $zoeyDawsonPorter = $this->repository->findOneByName('Zoey Dawson-Porter');
+        $zoeyPorter = $this->repository->findOneBy(['name' => 'Zoey Porter']);
+        $zoeyDawsonPorter = $this->repository->findOneBy(['name' => 'Zoey Dawson-Porter']);
 
         $this->assertNull($zoeyPorter);
         $this->assertNotNull($zoeyDawsonPorter);
@@ -216,6 +228,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             $entityManager = $args->getEntityManager();
             $entityInsertions = $args->getEntityInsertions();
             $objectHash = spl_object_hash($zoeyPorter);
+            $this->assertArrayHasKey($objectHash, $entityInsertions);
             $entityManager->remove($entityInsertions[$objectHash]);
 
             return true;
@@ -243,25 +256,32 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         $this->assertSame('Zoey Porter', $zoeyPorter->getName());
 
-        $zoeyPorter = $this->repository->findOneByName('Zoey Porter');
+        $zoeyPorter = $this->repository->findOneBy(['name' => 'Zoey Porter']);
 
         $this->assertNull($zoeyPorter);
     }
 
     public function testUpdateEntityUpdateOnFlush(): void
     {
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+
+        $this->assertNotNull($danielleMurphy);
+
         $danielleMurphy->setName('Danielle Sanders-Murphy');
 
         $updateEntity = function (FlushEventArgs $args) use ($danielleMurphy) {
             $entityUpdates = $args->getEntityUpdates();
             $objectHash = spl_object_hash($danielleMurphy);
+            $this->assertArrayHasKey($objectHash, $entityUpdates);
+            $this->assertArrayHasKey(1, $entityUpdates[$objectHash]);
+            $this->assertInstanceOf(Person::class, $entityUpdates[$objectHash][1]);
             $entityUpdates[$objectHash][1]->setName('Danielle Sanders');
 
             return true;
         };
 
         $assertUpdateEventArgs = function (UpdateEventArgs $args) {
+            $this->assertInstanceOf(Person::class, $args->getEntity());
             $this->assertSame('Danielle Sanders', $args->getEntity()->getName());
 
             return true;
@@ -272,8 +292,11 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             $objectHash = spl_object_hash($danielleMurphy);
             $this->assertCount(1, $entityUpdates);
             $this->assertArrayHasKey($objectHash, $entityUpdates);
-            $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
+            $this->assertArrayHasKey(0, $entityUpdates[$objectHash]);
+            $this->assertInstanceOf(Person::class, $entityUpdates[$objectHash][0]);
             $this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
+            $this->assertArrayHasKey(1, $entityUpdates[$objectHash]);
+            $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
 
             return true;
         };
@@ -303,9 +326,9 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         $this->assertSame('Danielle Sanders', $danielleMurphy->getName());
 
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
-        $danielleSandersMurphy = $this->repository->findOneByName('Danielle Sanders-Murphy');
-        $danielleSanders = $this->repository->findOneByName('Danielle Sanders');
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+        $danielleSandersMurphy = $this->repository->findOneBy(['name' => 'Danielle Sanders-Murphy']);
+        $danielleSanders = $this->repository->findOneBy(['name' => 'Danielle Sanders']);
 
         $this->assertNull($danielleMurphy);
         $this->assertNull($danielleSandersMurphy);
@@ -314,13 +337,18 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
     public function testRemoveEntityUpdateOnFlush(): void
     {
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+
+        $this->assertNotNull($danielleMurphy);
+
         $danielleMurphy->setName('Danielle Sanders-Murphy');
 
         $removeEntity = function (FlushEventArgs $args) use ($danielleMurphy) {
             $entityManager = $args->getEntityManager();
             $entityUpdates = $args->getEntityUpdates();
             $objectHash = spl_object_hash($danielleMurphy);
+            $this->assertArrayHasKey($objectHash, $entityUpdates);
+            $this->assertArrayHasKey(1, $entityUpdates[$objectHash]);
             $entityManager->remove($entityUpdates[$objectHash][1]);
 
             return true;
@@ -354,8 +382,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         $this->assertSame('Danielle Sanders-Murphy', $danielleMurphy->getName());
 
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
-        $danielleSandersMurphy = $this->repository->findOneByName('Danielle Sanders-Murphy');
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+        $danielleSandersMurphy = $this->repository->findOneBy(['name' => 'Danielle Sanders-Murphy']);
 
         $this->assertNull($danielleMurphy);
         $this->assertNull($danielleSandersMurphy);
@@ -363,12 +391,15 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
     public function testPersistEntityDeletionOnFlush(): void
     {
-        $mikeKennedy = $this->repository->findOneByName('Mike Kennedy');
+        $mikeKennedy = $this->repository->findOneBy(['name' => 'Mike Kennedy']);
+
+        $this->assertNotNull($mikeKennedy);
 
         $persistEntity = function (FlushEventArgs $args) use ($mikeKennedy) {
             $entityManager = $args->getEntityManager();
             $entityDeletions = $args->getEntityDeletions();
             $objectHash = spl_object_hash($mikeKennedy);
+            $this->assertArrayHasKey($objectHash, $entityDeletions);
             $entityManager->persist($entityDeletions[$objectHash]);
 
             return true;
@@ -396,19 +427,23 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         $this->assertSame('Mike Kennedy', $mikeKennedy->getName());
 
-        $mikeKennedy = $this->repository->findOneByName('Mike Kennedy');
+        $mikeKennedy = $this->repository->findOneBy(['name' => 'Mike Kennedy']);
 
         $this->assertNotNull($mikeKennedy);
     }
 
     public function testUpdateEntityDeletionOnFlush(): void
     {
-        $mikeKennedy = $this->repository->findOneByName('Mike Kennedy');
+        $mikeKennedy = $this->repository->findOneBy(['name' => 'Mike Kennedy']);
+
+        $this->assertNotNull($mikeKennedy);
 
         $updateEntity = function (FlushEventArgs $args) use ($mikeKennedy) {
             $entityManager = $args->getEntityManager();
             $entityDeletions = $args->getEntityDeletions();
             $objectHash = spl_object_hash($mikeKennedy);
+            $this->assertArrayHasKey($objectHash, $entityDeletions);
+            $this->assertInstanceOf(Person::class, $entityDeletions[$objectHash]);
             $entityDeletions[$objectHash]->setName('Mike Jones');
             $entityManager->persist($entityDeletions[$objectHash]);
 
@@ -416,6 +451,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         };
 
         $assertUpdateEventArgs = function (UpdateEventArgs $args) {
+            $this->assertInstanceOf(Person::class, $args->getEntity());
             $this->assertSame('Mike Jones', $args->getEntity()->getName());
 
             return true;
@@ -426,8 +462,11 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             $objectHash = spl_object_hash($mikeKennedy);
             $this->assertCount(1, $entityUpdates);
             $this->assertArrayHasKey($objectHash, $entityUpdates);
-            $this->assertSame($mikeKennedy, $entityUpdates[$objectHash][1]);
+            $this->assertArrayHasKey(0, $entityUpdates[$objectHash]);
+            $this->assertInstanceOf(Person::class, $entityUpdates[$objectHash][0]);
             $this->assertSame('Mike Kennedy', $entityUpdates[$objectHash][0]->getName());
+            $this->assertArrayHasKey(1, $entityUpdates[$objectHash]);
+            $this->assertSame($mikeKennedy, $entityUpdates[$objectHash][1]);
 
             $entityDeletions = $args->getEntityDeletions();
             $this->assertEmpty($entityDeletions);
@@ -460,8 +499,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         $this->assertSame('Mike Jones', $mikeKennedy->getName());
 
-        $mikeKennedy = $this->repository->findOneByName('Mike Kennedy');
-        $mikeJones = $this->repository->findOneByName('Mike Jones');
+        $mikeKennedy = $this->repository->findOneBy(['name' => 'Mike Kennedy']);
+        $mikeJones = $this->repository->findOneBy(['name' => 'Mike Jones']);
 
         $this->assertNull($mikeKennedy);
         $this->assertNotNull($mikeJones);
@@ -511,8 +550,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertSame('Zoey Porter', $zoeyPorter->getName());
         $this->assertSame('Rebecca Anderson', $rebeccaAnderson->getName());
 
-        $zoeyPorter = $this->repository->findOneByName('Zoey Porter');
-        $rebeccaAnderson = $this->repository->findOneByName('Rebecca Anderson');
+        $zoeyPorter = $this->repository->findOneBy(['name' => 'Zoey Porter']);
+        $rebeccaAnderson = $this->repository->findOneBy(['name' => 'Rebecca Anderson']);
 
         $this->assertNotNull($zoeyPorter);
         $this->assertNotNull($rebeccaAnderson);
@@ -523,7 +562,9 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $zoeyPorter = new Person();
         $zoeyPorter->setName('Zoey Porter');
 
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+
+        $this->assertNotNull($danielleMurphy);
 
         $persistNewEntity = function (FlushEventArgs $args) use ($danielleMurphy) {
             $entityManager = $args->getEntityManager();
@@ -562,9 +603,9 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertSame('Zoey Porter', $zoeyPorter->getName());
         $this->assertSame('Danielle Sanders-Murphy', $danielleMurphy->getName());
 
-        $zoeyPorter = $this->repository->findOneByName('Zoey Porter');
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
-        $danielleSandersMurphy = $this->repository->findOneByName('Danielle Sanders-Murphy');
+        $zoeyPorter = $this->repository->findOneBy(['name' => 'Zoey Porter']);
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+        $danielleSandersMurphy = $this->repository->findOneBy(['name' => 'Danielle Sanders-Murphy']);
 
         $this->assertNotNull($zoeyPorter);
         $this->assertNotNull($danielleMurphy);
@@ -576,15 +617,16 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $zoeyPorter = new Person();
         $zoeyPorter->setName('Zoey Porter');
 
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+
+        $this->assertNotNull($danielleMurphy);
 
         $persistNewEntity = function (FlushEventArgs $args) use ($danielleMurphy) {
             $entityManager = $args->getEntityManager();
             $danielleMurphy->setName('Danielle Sanders-Murphy');
             $entityManager->persist($danielleMurphy);
 
-            $className = get_class($danielleMurphy);
-            $classMetaData = $entityManager->getClassMetadata($className);
+            $classMetaData = $entityManager->getClassMetadata(Person::class);
             $unitOfWork = $entityManager->getUnitOfWork();
             $unitOfWork->recomputeSingleEntityChangeSet($classMetaData, $danielleMurphy);
 
@@ -602,8 +644,11 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             $objectHash = spl_object_hash($danielleMurphy);
             $this->assertCount(1, $entityUpdates);
             $this->assertArrayHasKey($objectHash, $entityUpdates);
-            $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
+            $this->assertArrayHasKey(0, $entityUpdates[$objectHash]);
+            $this->assertInstanceOf(Person::class, $entityUpdates[$objectHash][0]);
             $this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
+            $this->assertArrayHasKey(1, $entityUpdates[$objectHash]);
+            $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
 
             return true;
         };
@@ -624,9 +669,9 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertSame('Zoey Porter', $zoeyPorter->getName());
         $this->assertSame('Danielle Sanders-Murphy', $danielleMurphy->getName());
 
-        $zoeyPorter = $this->repository->findOneByName('Zoey Porter');
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
-        $danielleSandersMurphy = $this->repository->findOneByName('Danielle Sanders-Murphy');
+        $zoeyPorter = $this->repository->findOneBy(['name' => 'Zoey Porter']);
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+        $danielleSandersMurphy = $this->repository->findOneBy(['name' => 'Danielle Sanders-Murphy']);
 
         $this->assertNotNull($zoeyPorter);
         $this->assertNull($danielleMurphy);
@@ -638,7 +683,9 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $zoeyPorter = new Person();
         $zoeyPorter->setName('Zoey Porter');
 
-        $mikeKennedy = $this->repository->findOneByName('Mike Kennedy');
+        $mikeKennedy = $this->repository->findOneBy(['name' => 'Mike Kennedy']);
+
+        $this->assertNotNull($mikeKennedy);
 
         $persistNewEntity = function (FlushEventArgs $args) use ($mikeKennedy) {
             $entityManager = $args->getEntityManager();
@@ -679,8 +726,8 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertSame('Zoey Porter', $zoeyPorter->getName());
         $this->assertSame('Mike Kennedy', $mikeKennedy->getName());
 
-        $zoeyPorter = $this->repository->findOneByName('Zoey Porter');
-        $mikeKennedy = $this->repository->findOneByName('Mike Kennedy');
+        $zoeyPorter = $this->repository->findOneBy(['name' => 'Zoey Porter']);
+        $mikeKennedy = $this->repository->findOneBy(['name' => 'Mike Kennedy']);
 
         $this->assertNotNull($zoeyPorter);
         $this->assertNull($mikeKennedy);
@@ -688,16 +735,21 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
     public function testUpdateEntityPreUpdate(): void
     {
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+
+        $this->assertNotNull($danielleMurphy);
+
         $danielleMurphy->setName('Danielle Sanders-Murphy');
 
         $updateEntity = function (UpdateEventArgs $args) {
+            $this->assertInstanceOf(Person::class, $args->getEntity());
             $args->getEntity()->setName('Danielle Sanders');
 
             return true;
         };
 
         $assertUpdateEventArgs = function (UpdateEventArgs $args) {
+            $this->assertInstanceOf(Person::class, $args->getEntity());
             $this->assertSame('Danielle Sanders', $args->getEntity()->getName());
 
             return true;
@@ -708,8 +760,11 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             $objectHash = spl_object_hash($danielleMurphy);
             $this->assertCount(1, $entityUpdates);
             $this->assertArrayHasKey($objectHash, $entityUpdates);
-            $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
+            $this->assertArrayHasKey(0, $entityUpdates[$objectHash]);
+            $this->assertInstanceOf(Person::class, $entityUpdates[$objectHash][0]);
             $this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
+            $this->assertArrayHasKey(1, $entityUpdates[$objectHash]);
+            $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
 
             return true;
         };
@@ -734,9 +789,9 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         $this->assertSame('Danielle Sanders', $danielleMurphy->getName());
 
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
-        $danielleSandersMurphy = $this->repository->findOneByName('Danielle Sanders-Murphy');
-        $danielleSanders = $this->repository->findOneByName('Danielle Sanders');
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+        $danielleSandersMurphy = $this->repository->findOneBy(['name' => 'Danielle Sanders-Murphy']);
+        $danielleSanders = $this->repository->findOneBy(['name' => 'Danielle Sanders']);
 
         $this->assertNull($danielleMurphy);
         $this->assertNull($danielleSandersMurphy);
@@ -745,10 +800,14 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
     public function testUpdateEntityPostUpdateIgnored(): void
     {
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+
+        $this->assertNotNull($danielleMurphy);
+
         $danielleMurphy->setName('Danielle Sanders-Murphy');
 
         $updateEntity = function (UpdateEventArgs $args) {
+            $this->assertInstanceOf(Person::class, $args->getEntity());
             $args->getEntity()->setName('Danielle Sanders');
 
             return true;
@@ -759,8 +818,11 @@ class EventSubscriberTest extends OrmFunctionalTestCase
             $objectHash = spl_object_hash($danielleMurphy);
             $this->assertCount(1, $entityUpdates);
             $this->assertArrayHasKey($objectHash, $entityUpdates);
-            $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
+            $this->assertArrayHasKey(0, $entityUpdates[$objectHash]);
+            $this->assertInstanceOf(Person::class, $entityUpdates[$objectHash][0]);
             $this->assertSame('Danielle Murphy', $entityUpdates[$objectHash][0]->getName());
+            $this->assertArrayHasKey(1, $entityUpdates[$objectHash]);
+            $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
 
             return true;
         };
@@ -780,9 +842,9 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         $this->assertSame('Danielle Sanders', $danielleMurphy->getName());
 
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
-        $danielleSandersMurphy = $this->repository->findOneByName('Danielle Sanders-Murphy');
-        $danielleSanders = $this->repository->findOneByName('Danielle Sanders');
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+        $danielleSandersMurphy = $this->repository->findOneBy(['name' => 'Danielle Sanders-Murphy']);
+        $danielleSanders = $this->repository->findOneBy(['name' => 'Danielle Sanders']);
 
         $this->assertNull($danielleMurphy);
         $this->assertNotNull($danielleSandersMurphy);
@@ -791,12 +853,18 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
     public function testUpdateEntityPostFlushIgnored(): void
     {
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+
+        $this->assertNotNull($danielleMurphy);
+
         $danielleMurphy->setName('Danielle Sanders-Murphy');
 
         $updateEntity = function (FlushEventArgs $args) use ($danielleMurphy) {
             $entityUpdates = $args->getEntityUpdates();
             $objectHash = spl_object_hash($danielleMurphy);
+            $this->assertArrayHasKey($objectHash, $entityUpdates);
+            $this->assertArrayHasKey(1, $entityUpdates[$objectHash]);
+            $this->assertInstanceOf(Person::class, $entityUpdates[$objectHash][1]);
             $entityUpdates[$objectHash][1]->setName('Danielle Sanders');
 
             return true;
@@ -812,9 +880,9 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         $this->assertSame('Danielle Sanders', $danielleMurphy->getName());
 
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
-        $danielleSandersMurphy = $this->repository->findOneByName('Danielle Sanders-Murphy');
-        $danielleSanders = $this->repository->findOneByName('Danielle Sanders');
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+        $danielleSandersMurphy = $this->repository->findOneBy(['name' => 'Danielle Sanders-Murphy']);
+        $danielleSanders = $this->repository->findOneBy(['name' => 'Danielle Sanders']);
 
         $this->assertNull($danielleMurphy);
         $this->assertNotNull($danielleSandersMurphy);
@@ -826,7 +894,10 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $zoeyPorter = new Person();
         $zoeyPorter->setName('Zoey Porter');
 
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+
+        $this->assertNotNull($danielleMurphy);
+
         $danielleMurphy->setName('Danielle Sanders-Murphy');
 
         $assertFlushEventArgsOnFlush = function (FlushEventArgs $args) use ($zoeyPorter, $danielleMurphy) {
@@ -839,6 +910,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
                 $objectHash = spl_object_hash($danielleMurphy);
                 $this->assertCount(1, $entityUpdates);
                 $this->assertArrayHasKey($objectHash, $entityUpdates);
+                $this->assertArrayHasKey(1, $entityUpdates[$objectHash]);
                 $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
                 $this->assertSame('Danielle Sanders-Murphy', $entityUpdates[$objectHash][1]->getName());
             }
@@ -854,6 +926,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
                 $objectHash = spl_object_hash($danielleMurphy);
                 $this->assertCount(1, $entityUpdates);
                 $this->assertArrayHasKey($objectHash, $entityUpdates);
+                $this->assertArrayHasKey(1, $entityUpdates[$objectHash]);
                 $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
                 $this->assertSame('Danielle Sanders-Murphy', $entityUpdates[$objectHash][1]->getName());
             }
@@ -876,12 +949,13 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         $onFlushEnhancedCallback = function (FlushEventArgs $args) use ($assertFlushEventArgsOnFlush, $nestedFlush) {
             $assertFlushEventArgsOnFlush($args);
-            $nestedFlush($args);
+            $nestedFlush();
 
             return true;
         };
 
         $assertUpdateEventArgs = function (UpdateEventArgs $args) {
+            $this->assertInstanceOf(Person::class, $args->getEntity());
             $this->assertSame('Danielle Sanders-Murphy', $args->getEntity()->getName());
 
             return true;
@@ -903,6 +977,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
                 $objectHash = spl_object_hash($danielleMurphy);
                 $this->assertCount(1, $entityUpdates);
                 $this->assertArrayHasKey($objectHash, $entityUpdates);
+                $this->assertArrayHasKey(1, $entityUpdates[$objectHash]);
                 $this->assertSame($danielleMurphy, $entityUpdates[$objectHash][1]);
                 $this->assertSame('Danielle Sanders-Murphy', $entityUpdates[$objectHash][1]->getName());
             }
@@ -940,9 +1015,9 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         $this->assertSame('Danielle Sanders-Murphy', $danielleMurphy->getName());
 
-        $zoeyPorter = $this->repository->findOneByName('Zoey Porter');
-        $danielleMurphy = $this->repository->findOneByName('Danielle Murphy');
-        $danielleSandersMurphy = $this->repository->findOneByName('Danielle Sanders-Murphy');
+        $zoeyPorter = $this->repository->findOneBy(['name' => 'Zoey Porter']);
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+        $danielleSandersMurphy = $this->repository->findOneBy(['name' => 'Danielle Sanders-Murphy']);
 
         $this->assertNotNull($zoeyPorter);
         $this->assertNull($danielleMurphy);

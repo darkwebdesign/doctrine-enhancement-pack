@@ -38,16 +38,16 @@ use Doctrine\ORM\UnitOfWork;
  */
 class EventSubscriber implements DoctrineEventSubscriber
 {
-    /** @var array */
+    /** @var array<int, array<string, object>> */
     private $entityInsertions = [];
 
-    /** @var array */
+    /** @var array<int, array<string, array{object, object}>> */
     private $entityUpdates = [];
 
-    /** @var array */
+    /** @var array<int, array<string, object>> */
     private $entityDeletions = [];
 
-    public function onFlush(OnFlushEventArgs $eventArgs)
+    public function onFlush(OnFlushEventArgs $eventArgs): void
     {
         $entityManager = $eventArgs->getEntityManager();
         $eventManager = $entityManager->getEventManager();
@@ -86,7 +86,7 @@ class EventSubscriber implements DoctrineEventSubscriber
         }
     }
 
-    public function preUpdate(PreUpdateEventArgs $eventArgs)
+    public function preUpdate(PreUpdateEventArgs $eventArgs): void
     {
         $entity = $eventArgs->getObject();
         $entityManager = $eventArgs->getEntityManager();
@@ -102,7 +102,7 @@ class EventSubscriber implements DoctrineEventSubscriber
         $eventManager->dispatchEvent(Events::preUpdateEnhanced, $eventArgs);
     }
 
-    public function postUpdate(LifecycleEventArgs $eventArgs)
+    public function postUpdate(LifecycleEventArgs $eventArgs): void
     {
         $entity = $eventArgs->getObject();
         $entityManager = $eventArgs->getEntityManager();
@@ -118,7 +118,7 @@ class EventSubscriber implements DoctrineEventSubscriber
         $eventManager->dispatchEvent(Events::postUpdateEnhanced, $eventArgs);
     }
 
-    public function postFlush(PostFlushEventArgs $eventArgs)
+    public function postFlush(PostFlushEventArgs $eventArgs): void
     {
         $entityManager = $eventArgs->getEntityManager();
         $eventManager = $entityManager->getEventManager();
@@ -141,7 +141,7 @@ class EventSubscriber implements DoctrineEventSubscriber
         );
     }
 
-    private function cacheContext(EntityManager $entityManager)
+    private function cacheContext(EntityManager $entityManager): void
     {
         $unitOfWork = $entityManager->getUnitOfWork();
         $connection = $entityManager->getConnection();
@@ -163,7 +163,7 @@ class EventSubscriber implements DoctrineEventSubscriber
     /**
      * @param object $entity
      */
-    private function addEntityUpdate(EntityManager $entityManager, $entity)
+    private function addEntityUpdate(EntityManager $entityManager, $entity): void
     {
         $connection = $entityManager->getConnection();
         $transactionNestingLevel = $connection->getTransactionNestingLevel() + 1;
@@ -174,11 +174,13 @@ class EventSubscriber implements DoctrineEventSubscriber
     }
 
     /**
-     * @param object $entity
+     * @template T of object
      *
-     * @return object
+     * @param T $entity
+     *
+     * @return T
      */
-    private function getOriginalEntity(EntityManager $entityManager, $entity)
+    private function getOriginalEntity(EntityManager $entityManager, object $entity): object
     {
         $unitOfWork = $entityManager->getUnitOfWork();
         $entityChangeSet = $unitOfWork->getEntityChangeSet($entity);
@@ -189,6 +191,9 @@ class EventSubscriber implements DoctrineEventSubscriber
         $originalEntity = clone $entity;
 
         foreach ($entityChangeSet as $field => $values) {
+            if (!isset($classMetaData->reflFields[$field])) {
+                throw new \RuntimeException(sprintf('Unable to set value for field "%s" in class "%s".', $field, $className));
+            }
             $classMetaData->reflFields[$field]->setValue($originalEntity, $values[0]);
         }
 
@@ -200,7 +205,7 @@ class EventSubscriber implements DoctrineEventSubscriber
      *
      * @return bool
      */
-    private function computeChangeSet(EntityManager $entityManager, $entity)
+    private function computeChangeSet(EntityManager $entityManager, object $entity): bool
     {
         $unitOfWork = $entityManager->getUnitOfWork();
 
@@ -220,10 +225,7 @@ class EventSubscriber implements DoctrineEventSubscriber
         return true;
     }
 
-    /**
-     * @return array
-     */
-    public function getSubscribedEvents()
+    public function getSubscribedEvents(): array
     {
         return [
             DoctrineEvents::onFlush,

@@ -32,15 +32,20 @@ use Doctrine\ORM\Event\OnFlushEventArgs;
  */
 class FlushEventArgs extends OnFlushEventArgs
 {
-    /** @var array */
+    /** @var array<string, object> */
     private $entityInsertions;
 
-    /** @var array */
+    /** @var array<string, array{object, object}> */
     private $entityUpdates;
 
-    /** @var array */
+    /** @var array<string, object> */
     private $entityDeletions;
 
+    /**
+     * @param array<string, object> $entityInsertions
+     * @param array<string, array{object, object}> $entityUpdates
+     * @param array<string, object> $entityDeletions
+     */
     public function __construct(array $entityInsertions, array $entityUpdates, array $entityDeletions, EntityManager $entityManager)
     {
         parent::__construct($entityManager);
@@ -51,25 +56,25 @@ class FlushEventArgs extends OnFlushEventArgs
     }
 
     /**
-     * @return array
+     * @return array<string, object>
      */
-    public function getEntityInsertions()
+    public function getEntityInsertions(): array
     {
         return $this->entityInsertions;
     }
 
     /**
-     * @return array
+     * @return array<string, array{object, object}>
      */
-    public function getEntityUpdates()
+    public function getEntityUpdates(): array
     {
         return $this->entityUpdates;
     }
 
     /**
-     * @return array
+     * @return array<string, object>
      */
-    public function getEntityDeletions()
+    public function getEntityDeletions(): array
     {
         return $this->entityDeletions;
     }
