@@ -1,12 +1,14 @@
 {
     "name": "darkwebdesign/doctrine-enhanced-events",
-    "type": "library",
     "description": "Doctrine Enhanced Events",
+    "type": "library",
     "keywords": ["doctrine", "events"],
     "homepage": "http://www.darkwebdesign.nl/",
     "license": "MIT",
     "authors": [
-        {"name": "Raymond Schouten"}
+        {
+            "name": "Raymond Schouten"
+        }
     ],
     "require": {
         "doctrine/event-manager": "^1.1",
@@ -17,6 +19,10 @@
     "require-dev": {
         "doctrine/data-fixtures": "^1.5",
         "friendsofphp/php-cs-fixer": "^3.4",
+        "phpstan/extension-installer": "^1.4",
+        "phpstan/phpstan": "^1.12",
+        "phpstan/phpstan-doctrine": "^1.5",
+        "phpstan/phpstan-phpunit": "^1.4",
         "phpunit/phpunit": "^8.5"
     },
     "suggest": {
@@ -31,5 +37,11 @@
         "psr-4": {
             "DarkWebDesign\\DoctrineEnhancedEvents\\Tests\\": "tests/"
         }
+    },
+    "config": {
+        "allow-plugins": {
+            "phpstan/extension-installer": true
+        },
+        "sort-packages": true
     }
 }

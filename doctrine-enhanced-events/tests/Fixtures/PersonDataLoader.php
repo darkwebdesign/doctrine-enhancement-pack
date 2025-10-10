@@ -26,7 +26,7 @@ use Doctrine\Persistence\ObjectManager;
 
 class PersonDataLoader implements FixtureInterface
 {
-    public function load(ObjectManager $manager)
+    public function load(ObjectManager $manager): void
     {
         $mitchellSanders = new Person();
         $mitchellSanders->setName('Mitchell Sanders');

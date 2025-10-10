@@ -25,6 +25,7 @@ namespace DarkWebDesign\DoctrineEnhancedEvents\Tests;
 use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\Person;
 use DarkWebDesign\DoctrineEnhancedEvents\Tests\Fixtures\PersonDataLoader;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
+use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\DataFixtures\Loader;
 use Doctrine\Common\DataFixtures\Purger\ORMPurger;
 use Doctrine\ORM\EntityManager;
@@ -64,9 +65,11 @@ abstract class OrmFunctionalTestCase extends TestCase
         foreach (self::FIXTURE_CLASSNAMES as $fixtureClassname) {
             $loader->addFixture(new $fixtureClassname());
         }
+        /** @var FixtureInterface[] $fixtures */
+        $fixtures = $loader->getFixtures();
 
         $purger = new ORMPurger();
         $executor = new ORMExecutor($this->entityManager, $purger);
-        $executor->execute($loader->getFixtures(), true);
+        $executor->execute($fixtures, true);
     }
 }

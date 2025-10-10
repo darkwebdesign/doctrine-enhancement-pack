@@ -35,29 +35,19 @@ class UpdateEventArgs extends LifecycleEventArgs
     /** @var object */
     private $originalObject;
 
-    /**
-     * @param object $object
-     * @param object $originalObject
-     */
-    public function __construct($object, $originalObject, ObjectManager $objectManager)
+    public function __construct(object $object, object $originalObject, ObjectManager $objectManager)
     {
         parent::__construct($object, $objectManager);
 
         $this->originalObject = $originalObject;
     }
 
-    /**
-     * @return object
-     */
-    public function getOriginalEntity()
+    public function getOriginalEntity(): object
     {
         return $this->originalObject;
     }
 
-    /**
-     * @return object
-     */
-    public function getOriginalObject()
+    public function getOriginalObject(): object
     {
         return $this->originalObject;
     }
