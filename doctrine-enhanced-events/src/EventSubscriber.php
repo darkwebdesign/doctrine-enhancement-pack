@@ -191,10 +191,7 @@ class EventSubscriber implements DoctrineEventSubscriber
         $originalEntity = clone $entity;
 
         foreach ($entityChangeSet as $field => $values) {
-            if (!isset($classMetaData->reflFields[$field])) {
-                throw new \RuntimeException(sprintf('Unable to set value for field "%s" in class "%s".', $field, $className));
-            }
-            $classMetaData->reflFields[$field]->setValue($originalEntity, $values[0]);
+            $classMetaData->setFieldValue($originalEntity, $field, $values[0]);
         }
 
         return $originalEntity;
