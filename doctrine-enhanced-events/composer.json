@@ -23,7 +23,8 @@
         "phpstan/phpstan": "^1.12",
         "phpstan/phpstan-doctrine": "^1.5",
         "phpstan/phpstan-phpunit": "^1.4",
-        "phpunit/phpunit": "^8.5"
+        "phpunit/phpunit": "^8.5",
+        "rector/rector": "^1.2"
     },
     "suggest": {
         "darkwebdesign/doctrine-enhancement-pack": "All Doctrine enhancements bundled together"
