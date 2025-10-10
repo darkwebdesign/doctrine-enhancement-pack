@@ -200,11 +200,6 @@ class EventSubscriber implements DoctrineEventSubscriber
         return $originalEntity;
     }
 
-    /**
-     * @param object $entity
-     *
-     * @return bool
-     */
     private function computeChangeSet(EntityManager $entityManager, object $entity): bool
     {
         $unitOfWork = $entityManager->getUnitOfWork();
