@@ -1,6 +1,5 @@
 parameters:
     level: 8
-
     paths:
         - 'doctrine-enhanced-events/src'
         - 'doctrine-enhanced-events/tests'
