@@ -11,21 +11,12 @@ jobs:
     name: 'Subtree split'
     runs-on: 'ubuntu-24.04'
     steps:
-      - name: 'SSH Agent'
-        uses: 'webfactory/ssh-agent@v0.9.0'
+      - uses: 'webfactory/ssh-agent@v0.9.0'
         with:
-          ssh-private-key: |
-            ${{ secrets.DEPLOY_KEY_DOCTRINE_ENHANCED_EVENTS }}
-      - name: 'Checkout'
-        uses: 'actions/checkout@v4'
+          ssh-private-key: "${{ secrets.DEPLOY_KEY_DOCTRINE_ENHANCED_EVENTS }}"
+      - uses: 'actions/checkout@v4'
         with:
           fetch-depth: 0
-      - name: 'Git remote add'
-        run: |
-          git remote add doctrine-enhanced-events git@github.com:darkwebdesign/doctrine-enhanced-events.git
-      - name: 'Git subtree split'
-        run: |
-          git subtree split --prefix=doctrine-enhanced-events --branch doctrine-enhanced-events
-      - name: 'Git push'
-        run: |
-          git push doctrine-enhanced-events "doctrine-enhanced-events:${GITHUB_REF#refs/heads/}"
+      - run: 'git remote add doctrine-enhanced-events git@github.com:darkwebdesign/doctrine-enhanced-events.git'
+      - run: 'git subtree split --prefix=doctrine-enhanced-events --branch doctrine-enhanced-events'
+      - run: "git push doctrine-enhanced-events doctrine-enhanced-events:${GITHUB_REF#refs/heads/}"
