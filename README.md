@@ -2,11 +2,11 @@
 
 [![Latest Stable Version](https://poser.pugx.org/darkwebdesign/doctrine-enhancement-pack/v/stable?format=flat)](https://packagist.org/packages/darkwebdesign/doctrine-enhancement-pack)
 [![Total Downloads](https://poser.pugx.org/darkwebdesign/doctrine-enhancement-pack/downloads?format=flat)](https://packagist.org/packages/darkwebdesign/doctrine-enhancement-pack)
-[![License](https://poser.pugx.org/darkwebdesign/doctrine-enhancement-pack/license?format=flat)](https://packagist.org/packages/darkwebdesign/doctrine-enhancement-pack)
 
 [![Build Status](https://github.com/darkwebdesign/doctrine-enhancement-pack/actions/workflows/build.yaml/badge.svg?branch=2.8)](https://github.com/darkwebdesign/doctrine-enhancement-pack/actions/workflows/build.yaml)
 [![PHP Version](https://img.shields.io/badge/php-7.2%2B-777BB3.svg)](https://php.net/)
 [![Doctrine Version](https://img.shields.io/badge/doctrine-2.8-2E6BC8.svg)](http://www.doctrine-project.org/)
+[![License](https://poser.pugx.org/darkwebdesign/doctrine-enhancement-pack/license?format=flat)](https://packagist.org/packages/darkwebdesign/doctrine-enhancement-pack)
 
 Doctrine Enhancement Pack is a collection of Doctrine enhancements that you can use in your Doctrine projects.
 
