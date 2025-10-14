@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace DarkWebDesign\DoctrineEnhancedEvents;
 
 use Doctrine\Common\EventSubscriber as DoctrineEventSubscriber;
-use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
@@ -141,7 +141,7 @@ class EventSubscriber implements DoctrineEventSubscriber
         );
     }
 
-    private function cacheContext(EntityManager $entityManager): void
+    private function cacheContext(EntityManagerInterface $entityManager): void
     {
         $unitOfWork = $entityManager->getUnitOfWork();
         $connection = $entityManager->getConnection();
@@ -163,7 +163,7 @@ class EventSubscriber implements DoctrineEventSubscriber
     /**
      * @param object $entity
      */
-    private function addEntityUpdate(EntityManager $entityManager, $entity): void
+    private function addEntityUpdate(EntityManagerInterface $entityManager, $entity): void
     {
         $connection = $entityManager->getConnection();
         $transactionNestingLevel = $connection->getTransactionNestingLevel() + 1;
@@ -180,7 +180,7 @@ class EventSubscriber implements DoctrineEventSubscriber
      *
      * @return T
      */
-    private function getOriginalEntity(EntityManager $entityManager, object $entity): object
+    private function getOriginalEntity(EntityManagerInterface $entityManager, object $entity): object
     {
         $unitOfWork = $entityManager->getUnitOfWork();
         $entityChangeSet = $unitOfWork->getEntityChangeSet($entity);
@@ -197,7 +197,7 @@ class EventSubscriber implements DoctrineEventSubscriber
         return $originalEntity;
     }
 
-    private function computeChangeSet(EntityManager $entityManager, object $entity): bool
+    private function computeChangeSet(EntityManagerInterface $entityManager, object $entity): bool
     {
         $unitOfWork = $entityManager->getUnitOfWork();
 

@@ -15,5 +15,5 @@ return RectorConfig::configure()
     ->withSets([
         LevelSetList::UP_TO_PHP_72,
         PHPUnitSetList::PHPUNIT_80,
-        DoctrineSetList::DOCTRINE_ORM_25,
+        DoctrineSetList::DOCTRINE_ORM_29,
     ]);
