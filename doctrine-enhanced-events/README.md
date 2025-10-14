@@ -19,16 +19,6 @@ Learn more about it in its [documentation](https://darkwebdesign.github.io/doctr
 * Modifying the actual entities (instead of via "change set" array) in the `on-flush` event and `pre-update` lifecycle event.
 * Automatic recomputing of the "change set" after modifying the entities in the `on-flush` event.
 
-## Installing via Composer
-
-```bash
-composer require darkwebdesign/doctrine-enhanced-events
-```
-
-```bash
-composer install
-```
-
 ## License
 
 Doctrine Enhanced Events is licensed under the MIT License - see the `LICENSE` file for details.
