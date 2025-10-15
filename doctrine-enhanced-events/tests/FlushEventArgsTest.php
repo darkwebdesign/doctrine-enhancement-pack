@@ -30,13 +30,13 @@ use PHPUnit\Framework\TestCase;
  */
 class FlushEventArgsTest extends TestCase
 {
-    /** @var array<string, object> */
+    /** @var array<int, object> */
     private $entityInsertions;
 
-    /** @var array<string, array{object, object}> */
+    /** @var array<int, array{object, object}> */
     private $entityUpdates;
 
-    /** @var array<string, object> */
+    /** @var array<int, object> */
     private $entityDeletions;
 
     /** @var EntityManager|MockObject */

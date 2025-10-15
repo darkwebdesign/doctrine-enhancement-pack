@@ -32,19 +32,19 @@ use Doctrine\ORM\Event\OnFlushEventArgs;
  */
 class FlushEventArgs extends OnFlushEventArgs
 {
-    /** @var array<string, object> */
+    /** @var array<int, object> */
     private $entityInsertions;
 
-    /** @var array<string, array{object, object}> */
+    /** @var array<int, array{object, object}> */
     private $entityUpdates;
 
-    /** @var array<string, object> */
+    /** @var array<int, object> */
     private $entityDeletions;
 
     /**
-     * @param array<string, object> $entityInsertions
-     * @param array<string, array{object, object}> $entityUpdates
-     * @param array<string, object> $entityDeletions
+     * @param array<int, object> $entityInsertions
+     * @param array<int, array{object, object}> $entityUpdates
+     * @param array<int, object> $entityDeletions
      */
     public function __construct(array $entityInsertions, array $entityUpdates, array $entityDeletions, EntityManagerInterface $entityManager)
     {
@@ -56,7 +56,7 @@ class FlushEventArgs extends OnFlushEventArgs
     }
 
     /**
-     * @return array<string, object>
+     * @return array<int, object>
      */
     public function getEntityInsertions(): array
     {
@@ -64,7 +64,7 @@ class FlushEventArgs extends OnFlushEventArgs
     }
 
     /**
-     * @return array<string, array{object, object}>
+     * @return array<int, array{object, object}>
      */
     public function getEntityUpdates(): array
     {
@@ -72,7 +72,7 @@ class FlushEventArgs extends OnFlushEventArgs
     }
 
     /**
-     * @return array<string, object>
+     * @return array<int, object>
      */
     public function getEntityDeletions(): array
     {

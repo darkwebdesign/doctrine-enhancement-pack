@@ -38,13 +38,13 @@ use Doctrine\ORM\UnitOfWork;
  */
 class EventSubscriber implements DoctrineEventSubscriber
 {
-    /** @var array<int, array<string, object>> */
+    /** @var array<int, array<int, object>> */
     private $entityInsertions = [];
 
-    /** @var array<int, array<string, array{object, object}>> */
+    /** @var array<int, array<int, array{object, object}>> */
     private $entityUpdates = [];
 
-    /** @var array<int, array<string, object>> */
+    /** @var array<int, array<int, object>> */
     private $entityDeletions = [];
 
     public function onFlush(OnFlushEventArgs $eventArgs): void
@@ -94,8 +94,8 @@ class EventSubscriber implements DoctrineEventSubscriber
         $connection = $entityManager->getConnection();
         $transactionNestingLevel = $connection->getTransactionNestingLevel();
 
-        $objectHash = spl_object_hash($entity);
-        $originalEntity = $this->entityUpdates[$transactionNestingLevel][$objectHash][0];
+        $objectId = spl_object_id($entity);
+        $originalEntity = $this->entityUpdates[$transactionNestingLevel][$objectId][0];
 
         $eventArgs = new UpdateEventArgs($entity, $originalEntity, $entityManager);
 
@@ -110,8 +110,8 @@ class EventSubscriber implements DoctrineEventSubscriber
         $connection = $entityManager->getConnection();
         $transactionNestingLevel = $connection->getTransactionNestingLevel();
 
-        $objectHash = spl_object_hash($entity);
-        $originalEntity = $this->entityUpdates[$transactionNestingLevel][$objectHash][0];
+        $objectId = spl_object_id($entity);
+        $originalEntity = $this->entityUpdates[$transactionNestingLevel][$objectId][0];
 
         $eventArgs = new UpdateEventArgs($entity, $originalEntity, $entityManager);
 
@@ -168,9 +168,9 @@ class EventSubscriber implements DoctrineEventSubscriber
         $connection = $entityManager->getConnection();
         $transactionNestingLevel = $connection->getTransactionNestingLevel() + 1;
 
-        $objectHash = spl_object_hash($entity);
+        $objectId = spl_object_id($entity);
         $originalEntity = $this->getOriginalEntity($entityManager, $entity);
-        $this->entityUpdates[$transactionNestingLevel][$objectHash] = [$originalEntity, $entity];
+        $this->entityUpdates[$transactionNestingLevel][$objectId] = [$originalEntity, $entity];
     }
 
     /**
