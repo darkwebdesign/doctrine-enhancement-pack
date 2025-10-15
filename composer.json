@@ -13,7 +13,7 @@
     "require": {
         "php": ">=7.2",
         "doctrine/event-manager": "^1.1",
-        "doctrine/orm": "2.10.*",
+        "doctrine/orm": "2.11.*",
         "doctrine/persistence": "^2.2"
     },
     "require-dev": {
