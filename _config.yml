@@ -6,6 +6,9 @@ aux_links:
   Visit repository on GitHub: https://github.com/darkwebdesign/doctrine-enhancement-pack
 
 collections:
+  v2_11:
+    permalink: "/docs/2.11/:path:output_ext"
+    output: true
   v2_10:
     permalink: "/docs/2.10/:path:output_ext"
     output: true
@@ -30,11 +33,16 @@ collections:
 
 just_the_docs:
   collections:
-    v2_10:
-      name: v2.10 (latest)
+    v2_11:
+      name: v2.11 (latest)
       nav_exclude: false
       nav_fold: true
       search_exclude: false
+    v2_10:
+      name: v2.10
+      nav_exclude: false
+      nav_fold: true
+      search_exclude: true
     v2_9:
       name: v2.9
       nav_exclude: false

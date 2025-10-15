@@ -2,13 +2,21 @@
 layout: default
 title: Welcome
 nav_order: 1
+redirect_from:
+  - /
+  - /docs
+  - /docs/
+  - /docs/2.11/
+  - /docs/latest
+  - /docs/latest/
+  - /docs/latest/welcome
 ---
 
 # Doctrine Enhancement Pack
 
-[![Build Status](https://github.com/darkwebdesign/doctrine-enhancement-pack/actions/workflows/build.yaml/badge.svg?branch=2.10)](https://github.com/darkwebdesign/doctrine-enhancement-pack/actions/workflows/build.yaml)
+[![Build Status](https://github.com/darkwebdesign/doctrine-enhancement-pack/actions/workflows/build.yaml/badge.svg?branch=2.11)](https://github.com/darkwebdesign/doctrine-enhancement-pack/actions/workflows/build.yaml)
 [![PHP Version](https://img.shields.io/badge/php-7.2%2B-777BB3.svg)](https://php.net/)
-[![Doctrine Version](https://img.shields.io/badge/doctrine-2.10-2E6BC8.svg)](http://www.doctrine-project.org/)
+[![Doctrine Version](https://img.shields.io/badge/doctrine-2.11-2E6BC8.svg)](http://www.doctrine-project.org/)
 [![License](https://poser.pugx.org/darkwebdesign/doctrine-enhancement-pack/license?format=flat)](https://packagist.org/packages/darkwebdesign/doctrine-enhancement-pack)
 
 Doctrine Enhancement Pack is a collection of extra Doctrine enhancements that you can use in your Doctrine applications.
