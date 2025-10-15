@@ -1,6 +1,8 @@
 ---
 layout: default
 title: Enhanced Events
+redirect_from:
+  - /docs/latest/enhanced-events
 ---
 
 # Enhanced Events
