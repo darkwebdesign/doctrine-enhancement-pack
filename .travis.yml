@@ -23,4 +23,4 @@ script:
 
 after_success:
     - 'curl https://qlty.sh | sh'
-    - 'qlty coverage publish --format=clover build/logs/clover.xml'
+    - '~/.qlty/bin/qlty coverage publish --format=clover build/logs/clover.xml'
