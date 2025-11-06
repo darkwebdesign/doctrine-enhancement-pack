@@ -46,13 +46,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         $this->repository = $this->_em->getRepository(CompanyPerson::class);
 
-        $this->eventSubscriberMock = $this->createMock(EventSubscriberMock::class, [
-            'onFlushEnhanced',
-            'preUpdateEnhanced',
-            'postUpdateEnhanced',
-            'postFlushEnhanced',
-            'getSubscribedEvents'
-        ]);
+        $this->eventSubscriberMock = $this->createMock(EventSubscriberMock::class);
 
         $this->eventSubscriberMock
             ->expects($this->any())
