@@ -25,6 +25,7 @@ namespace DarkWebDesign\DoctrineEnhancedEvents;
 use Doctrine\Common\EventSubscriber as DoctrineEventSubscriber;
 use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Event\LifecycleEventArgs;
+use Doctrine\ORM\Event\ListenersInvoker;
 use Doctrine\ORM\Event\OnFlushEventArgs;
 use Doctrine\ORM\Event\PostFlushEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
@@ -96,7 +97,8 @@ class EventSubscriber implements DoctrineEventSubscriber
     {
         $entity = $eventArgs->getObject();
         $entityManager = $eventArgs->getEntityManager();
-        $eventManager = $entityManager->getEventManager();
+        $classMetadata = $entityManager->getClassMetadata(get_class($entity));
+        $listenersInvoker = new ListenersInvoker($entityManager);
         $connection = $entityManager->getConnection();
         $transactionNestingLevel = $connection->getTransactionNestingLevel();
 
@@ -105,7 +107,11 @@ class EventSubscriber implements DoctrineEventSubscriber
 
         $eventArgs = new UpdateEventArgs($entity, $originalEntity, $entityManager);
 
-        $eventManager->dispatchEvent(Events::preUpdateEnhanced, $eventArgs);
+        $invoke = $listenersInvoker->getSubscribedSystems($classMetadata, Events::preUpdateEnhanced);
+
+        if ($invoke !== ListenersInvoker::INVOKE_NONE) {
+            $listenersInvoker->invoke($classMetadata, Events::preUpdateEnhanced, $entity, $eventArgs, $invoke);
+        }
     }
 
     /**
@@ -115,7 +121,8 @@ class EventSubscriber implements DoctrineEventSubscriber
     {
         $entity = $eventArgs->getObject();
         $entityManager = $eventArgs->getEntityManager();
-        $eventManager = $entityManager->getEventManager();
+        $classMetadata = $entityManager->getClassMetadata(get_class($entity));
+        $listenersInvoker = new ListenersInvoker($entityManager);
         $connection = $entityManager->getConnection();
         $transactionNestingLevel = $connection->getTransactionNestingLevel();
 
@@ -124,7 +131,11 @@ class EventSubscriber implements DoctrineEventSubscriber
 
         $eventArgs = new UpdateEventArgs($entity, $originalEntity, $entityManager);
 
-        $eventManager->dispatchEvent(Events::postUpdateEnhanced, $eventArgs);
+        $invoke = $listenersInvoker->getSubscribedSystems($classMetadata, Events::postUpdateEnhanced);
+
+        if ($invoke !== ListenersInvoker::INVOKE_NONE) {
+            $listenersInvoker->invoke($classMetadata, Events::postUpdateEnhanced, $entity, $eventArgs, $invoke);
+        }
     }
 
     /**
