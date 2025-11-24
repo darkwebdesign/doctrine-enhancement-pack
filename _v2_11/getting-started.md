@@ -18,7 +18,7 @@ If you don't have Composer installed in your computer, start by [installing Comp
 execute the following commands to install the required dependencies:
 
 ```bash
-composer require darkwebdesign/doctrine-ehancement-pack
+composer require darkwebdesign/doctrine-enhancement-pack
 ```
 
 ```bash
