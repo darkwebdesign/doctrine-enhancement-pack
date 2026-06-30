@@ -26,6 +26,7 @@ use DarkWebDesign\DoctrineEnhancedEvents\Events;
 use DarkWebDesign\DoctrineEnhancedEvents\EventSubscriber;
 use DarkWebDesign\DoctrineEnhancedEvents\FlushEventArgs;
 use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\Person;
+use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\Pet;
 use DarkWebDesign\DoctrineEnhancedEvents\Tests\Mocks\EventSubscriberMock;
 use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs;
 use Doctrine\ORM\EntityRepository;
@@ -676,6 +677,96 @@ class EventSubscriberTest extends OrmFunctionalTestCase
         $this->assertNotNull($zoeyPorter);
         $this->assertNull($danielleMurphy);
         $this->assertNotNull($danielleSandersMurphy);
+    }
+
+    public function testUpdateEntityPreUpdateManualRecompute(): void
+    {
+        $petRepository = $this->entityManager->getRepository(Pet::class);
+
+        $danielleMurphy = $this->repository->findOneBy(['name' => 'Danielle Murphy']);
+        $rex = $petRepository->findOneBy(['name' => 'Rex']);
+        $bella = $petRepository->findOneBy(['name' => 'Bella']);
+
+        $this->assertNotNull($danielleMurphy);
+        $this->assertNotNull($rex);
+        $this->assertNotNull($bella);
+
+        $danielleMurphy->setName('Danielle Sanders-Murphy');
+        $rex->setName('Rexy');
+
+        $recomputeNewEntity = function (UpdateEventArgs $args) use ($danielleMurphy, $bella) {
+            if ($args->getEntity() === $danielleMurphy) {
+                $bella->setName('Bella-Mae');
+
+                $entityManager = $args->getEntityManager();
+                $classMetaData = $entityManager->getClassMetadata(Pet::class);
+                $unitOfWork = $entityManager->getUnitOfWork();
+                $unitOfWork->recomputeSingleEntityChangeSet($classMetaData, $bella);
+            }
+
+            return true;
+        };
+
+        $assertUpdateEventArgs = function (UpdateEventArgs $args) use ($bella) {
+            if ($args->getEntity() === $bella) {
+                $this->assertInstanceOf(Pet::class, $args->getOriginalEntity());
+                $this->assertSame('Bella-Mae', $args->getEntity()->getName());
+                $this->assertSame('Bella', $args->getOriginalEntity()->getName());
+            }
+
+            return true;
+        };
+
+        $assertFlushEventArgsOnFlush = function (FlushEventArgs $args) use ($bella) {
+            $entityUpdates = $args->getEntityUpdates();
+            $objectHash = spl_object_hash($bella);
+            $this->assertCount(2, $entityUpdates);
+            $this->assertArrayNotHasKey($objectHash, $entityUpdates);
+
+            return true;
+        };
+
+        $assertFlushEventArgsPostFlush = function (FlushEventArgs $args) use ($bella) {
+            $entityUpdates = $args->getEntityUpdates();
+            $objectHash = spl_object_hash($bella);
+            $this->assertCount(3, $entityUpdates);
+            $this->assertArrayHasKey($objectHash, $entityUpdates);
+            $this->assertArrayHasKey(0, $entityUpdates[$objectHash]);
+            $this->assertInstanceOf(Pet::class, $entityUpdates[$objectHash][0]);
+            $this->assertSame('Bella', $entityUpdates[$objectHash][0]->getName());
+            $this->assertArrayHasKey(1, $entityUpdates[$objectHash]);
+            $this->assertSame($bella, $entityUpdates[$objectHash][1]);
+
+            return true;
+        };
+
+        $this->eventSubscriberMock
+            ->expects($this->exactly(3))
+            ->method('preUpdateEnhanced')
+            ->with($this->callback($recomputeNewEntity));
+
+        $this->eventSubscriberMock
+            ->expects($this->exactly(3))
+            ->method('postUpdateEnhanced')
+            ->with($this->callback($assertUpdateEventArgs));
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('onFlushEnhanced')
+            ->with($this->callback($assertFlushEventArgsOnFlush));
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('postFlushEnhanced')
+            ->with($this->callback($assertFlushEventArgsPostFlush));
+
+        $this->entityManager->flush();
+
+        $bella = $petRepository->findOneBy(['name' => 'Bella']);
+        $bellaMae = $petRepository->findOneBy(['name' => 'Bella-Mae']);
+
+        $this->assertNull($bella);
+        $this->assertNotNull($bellaMae);
     }
 
     public function testRemoveNewEntityOnFlush(): void
