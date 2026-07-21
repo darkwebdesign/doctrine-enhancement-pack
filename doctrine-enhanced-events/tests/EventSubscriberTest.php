@@ -719,23 +719,23 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         $assertFlushEventArgsOnFlush = function (FlushEventArgs $args) use ($bella) {
             $entityUpdates = $args->getEntityUpdates();
-            $objectHash = spl_object_hash($bella);
+            $objectId = spl_object_id($bella);
             $this->assertCount(2, $entityUpdates);
-            $this->assertArrayNotHasKey($objectHash, $entityUpdates);
+            $this->assertArrayNotHasKey($objectId, $entityUpdates);
 
             return true;
         };
 
         $assertFlushEventArgsPostFlush = function (FlushEventArgs $args) use ($bella) {
             $entityUpdates = $args->getEntityUpdates();
-            $objectHash = spl_object_hash($bella);
+            $objectId = spl_object_id($bella);
             $this->assertCount(3, $entityUpdates);
-            $this->assertArrayHasKey($objectHash, $entityUpdates);
-            $this->assertArrayHasKey(0, $entityUpdates[$objectHash]);
-            $this->assertInstanceOf(Pet::class, $entityUpdates[$objectHash][0]);
-            $this->assertSame('Bella', $entityUpdates[$objectHash][0]->getName());
-            $this->assertArrayHasKey(1, $entityUpdates[$objectHash]);
-            $this->assertSame($bella, $entityUpdates[$objectHash][1]);
+            $this->assertArrayHasKey($objectId, $entityUpdates);
+            $this->assertArrayHasKey(0, $entityUpdates[$objectId]);
+            $this->assertInstanceOf(Pet::class, $entityUpdates[$objectId][0]);
+            $this->assertSame('Bella', $entityUpdates[$objectId][0]->getName());
+            $this->assertArrayHasKey(1, $entityUpdates[$objectId]);
+            $this->assertSame($bella, $entityUpdates[$objectId][1]);
 
             return true;
         };
