@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2017-present DarkWeb Design.
+ * Copyright (c) 2026-present DarkWeb Design.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,38 +21,38 @@
 namespace DarkWebDesign\DoctrineEnhancedEvents\Tests\Fixtures;
 
 use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\Person;
+use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\Pet;
 use Doctrine\Common\DataFixtures\AbstractFixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 
-class PersonDataLoader extends AbstractFixture
+class PetDataLoader extends AbstractFixture implements DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
-        $mitchellSanders = new Person();
-        $mitchellSanders->setName('Mitchell Sanders');
+        /** @var Person $danielleMurphy */
+        $danielleMurphy = $this->getReference('danielleMurphy');
 
-        $madisonSmith = new Person();
-        $madisonSmith->setName('Madison Smith');
+        $rex = new Pet();
+        $rex->setName('Rex');
+        $rex->setOwner($danielleMurphy);
 
-        $melanieWest = new Person();
-        $melanieWest->setName('Melanie West');
+        $bella = new Pet();
+        $bella->setName('Bella');
+        $bella->setOwner($danielleMurphy);
 
-        $danielleMurphy = new Person();
-        $danielleMurphy->setName('Danielle Murphy');
-        $danielleMurphy->setSpouse($mitchellSanders);
-        $danielleMurphy->addFriend($madisonSmith);
-        $danielleMurphy->addFriend($melanieWest);
-
-        $mikeKennedy = new Person();
-        $mikeKennedy->setName('Mike Kennedy');
-
-        $manager->persist($mitchellSanders);
-        $manager->persist($madisonSmith);
-        $manager->persist($melanieWest);
-        $manager->persist($danielleMurphy);
-        $manager->persist($mikeKennedy);
+        $manager->persist($rex);
+        $manager->persist($bella);
         $manager->flush();
+    }
 
-        $this->addReference('danielleMurphy', $danielleMurphy);
+    /**
+     * @return class-string[]
+     */
+    public function getDependencies(): array
+    {
+        return [
+            PersonDataLoader::class,
+        ];
     }
 }

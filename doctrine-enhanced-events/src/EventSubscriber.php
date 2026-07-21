@@ -97,7 +97,12 @@ class EventSubscriber implements DoctrineEventSubscriber
         $transactionNestingLevel = $connection->getTransactionNestingLevel();
 
         $objectId = spl_object_id($entity);
-        $originalEntity = $this->entityUpdates[$transactionNestingLevel][$objectId][0];
+        $originalEntity = $this->entityUpdates[$transactionNestingLevel][$objectId][0] ?? null;
+
+        if (!$originalEntity) {
+            $originalEntity = $this->getOriginalEntity($entityManager, $entity);
+            $this->entityUpdates[$transactionNestingLevel][$objectId] = [$originalEntity, $entity];
+        }
 
         $eventArgs = new UpdateEventArgs($entity, $originalEntity, $entityManager);
 
