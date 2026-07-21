@@ -175,7 +175,7 @@ use DarkWebDesign\DoctrineEnhancedEvents\PostRemoveEventArgs as EnhancedPostRemo
 
 class MyEventListener
 {
-    public function preUpdateEnhanced(EnhancedPostRemoveEventArgs $event)
+    public function postRemoveEnhanced(EnhancedPostRemoveEventArgs $event)
     {
         $entity = $event->getEntity();
         $identifierValues = $event->getDeletedIdentifierValues(); // for composite identifiers
