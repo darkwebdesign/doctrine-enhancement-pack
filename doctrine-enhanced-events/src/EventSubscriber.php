@@ -48,6 +48,9 @@ class EventSubscriber implements DoctrineEventSubscriber
     /** @var array<int, array<int, object>> */
     private $entityDeletions = [];
 
+    /** @var array<int, array<int, array<string, mixed>>> */
+    private $deletedIdentifierValues = [];
+
     public function onFlush(OnFlushEventArgs $eventArgs): void
     {
         $entityManager = $eventArgs->getEntityManager();
@@ -81,6 +84,9 @@ class EventSubscriber implements DoctrineEventSubscriber
         }
 
         foreach ($entityDeletions as $entity) {
+            $objectId = spl_object_id($entity);
+            $this->deletedIdentifierValues[$transactionNestingLevel][$objectId] = $this->getDeletedIdentifierValues($entityManager, $entity);
+
             if ($this->computeChangeSet($entityManager, $entity)) {
                 $this->addEntityUpdate($entityManager, $entity);
             }
@@ -134,6 +140,27 @@ class EventSubscriber implements DoctrineEventSubscriber
         }
     }
 
+    public function postRemove(LifecycleEventArgs $eventArgs): void
+    {
+        $entity = $eventArgs->getObject();
+        $entityManager = $eventArgs->getEntityManager();
+        $classMetadata = $entityManager->getClassMetadata(get_class($entity));
+        $listenersInvoker = new ListenersInvoker($entityManager);
+        $connection = $entityManager->getConnection();
+        $transactionNestingLevel = $connection->getTransactionNestingLevel();
+
+        $objectId = spl_object_id($entity);
+        $deletedIdentifierValues = $this->deletedIdentifierValues[$transactionNestingLevel][$objectId] ?? [];
+
+        $eventArgs = new PostRemoveEventArgs($entity, $deletedIdentifierValues, $entityManager);
+
+        $invoke = $listenersInvoker->getSubscribedSystems($classMetadata, Events::postRemoveEnhanced);
+
+        if ($invoke !== ListenersInvoker::INVOKE_NONE) {
+            $listenersInvoker->invoke($classMetadata, Events::postRemoveEnhanced, $entity, $eventArgs, $invoke);
+        }
+    }
+
     public function postFlush(PostFlushEventArgs $eventArgs): void
     {
         $entityManager = $eventArgs->getEntityManager();
@@ -153,7 +180,8 @@ class EventSubscriber implements DoctrineEventSubscriber
         unset(
             $this->entityInsertions[$transactionNestingLevel],
             $this->entityUpdates[$transactionNestingLevel],
-            $this->entityDeletions[$transactionNestingLevel]
+            $this->entityDeletions[$transactionNestingLevel],
+            $this->deletedIdentifierValues[$transactionNestingLevel]
         );
     }
 
@@ -213,6 +241,29 @@ class EventSubscriber implements DoctrineEventSubscriber
         return $originalEntity;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    private function getDeletedIdentifierValues(EntityManagerInterface $entityManager, object $entity): array
+    {
+        $unitOfWork = $entityManager->getUnitOfWork();
+
+        $className = get_class($entity);
+        $classMetaData = $entityManager->getClassMetadata($className);
+
+        $originalEntityData = $unitOfWork->getOriginalEntityData($entity);
+
+        $originalEntity = clone $entity;
+
+        foreach ($classMetaData->getIdentifierFieldNames() as $identifierFieldName) {
+            if (array_key_exists($identifierFieldName, $originalEntityData)) {
+                $classMetaData->setFieldValue($originalEntity, $identifierFieldName, $originalEntityData[$identifierFieldName]);
+            }
+        }
+
+        return $classMetaData->getIdentifierValues($originalEntity);
+    }
+
     private function computeChangeSet(EntityManagerInterface $entityManager, object $entity): bool
     {
         $unitOfWork = $entityManager->getUnitOfWork();
@@ -239,6 +290,7 @@ class EventSubscriber implements DoctrineEventSubscriber
             DoctrineEvents::onFlush,
             DoctrineEvents::preUpdate,
             DoctrineEvents::postUpdate,
+            DoctrineEvents::postRemove,
             DoctrineEvents::postFlush,
         ];
     }

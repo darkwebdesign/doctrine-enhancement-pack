@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2017-present DarkWeb Design.
+ * Copyright (c) 2026-present DarkWeb Design.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -20,18 +20,36 @@
 
 declare(strict_types=1);
 
-namespace DarkWebDesign\DoctrineEnhancedEvents;
+namespace DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities;
+
+use Doctrine\ORM\Mapping\Column;
+use Doctrine\ORM\Mapping\Entity;
+use Doctrine\ORM\Mapping\GeneratedValue;
+use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\Table;
 
 /**
- * @author Raymond Schouten
- *
- * @since 2.4
+ * @Entity
+ * @Table(name="country")
  */
-class Events
+class Country
 {
-    public const preUpdateEnhanced = 'preUpdateEnhanced';
-    public const postUpdateEnhanced = 'postUpdateEnhanced';
-    public const postRemoveEnhanced = 'postRemoveEnhanced';
-    public const onFlushEnhanced = 'onFlushEnhanced';
-    public const postFlushEnhanced = 'postFlushEnhanced';
+    /**
+     * @Id
+     * @Column(type="string")
+     * @GeneratedValue(strategy="NONE")
+     *
+     * @var string
+     */
+    private $code;
+
+    public function getCode(): string
+    {
+        return $this->code;
+    }
+
+    public function setCode(string $code): void
+    {
+        $this->code = $code;
+    }
 }

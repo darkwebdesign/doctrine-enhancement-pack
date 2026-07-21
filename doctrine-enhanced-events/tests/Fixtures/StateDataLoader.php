@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2020-present DarkWeb Design.
+ * Copyright (c) 2026-present DarkWeb Design.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,39 +18,36 @@
  * SOFTWARE.
  */
 
-declare(strict_types=1);
+namespace DarkWebDesign\DoctrineEnhancedEvents\Tests\Fixtures;
 
-namespace DarkWebDesign\DoctrineEnhancedEvents\Tests\Mocks;
+use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\Country;
+use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\State;
+use Doctrine\Common\DataFixtures\AbstractFixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
+use Doctrine\Persistence\ObjectManager;
 
-use DarkWebDesign\DoctrineEnhancedEvents\FlushEventArgs;
-use DarkWebDesign\DoctrineEnhancedEvents\PostRemoveEventArgs;
-use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs;
-use Doctrine\Common\EventSubscriber;
-
-class EventSubscriberMock implements EventSubscriber
+class StateDataLoader extends AbstractFixture implements DependentFixtureInterface
 {
-    public function onFlushEnhanced(FlushEventArgs $eventArgs): void
+    public function load(ObjectManager $manager): void
     {
+        /** @var Country $unitedStates */
+        $unitedStates = $this->getReference('unitedStates');
+
+        $california = new State();
+        $california->setCode('CA');
+        $california->setCountry($unitedStates);
+
+        $manager->persist($california);
+        $manager->flush();
     }
 
-    public function preUpdateEnhanced(UpdateEventArgs $eventArgs): void
+    /**
+     * @return class-string[]
+     */
+    public function getDependencies(): array
     {
-    }
-
-    public function postUpdateEnhanced(UpdateEventArgs $eventArgs): void
-    {
-    }
-
-    public function postRemoveEnhanced(PostRemoveEventArgs $eventArgs): void
-    {
-    }
-
-    public function postFlushEnhanced(FlushEventArgs $eventArgs): void
-    {
-    }
-
-    public function getSubscribedEvents(): array
-    {
-        return [];
+        return [
+            CountryDataLoader::class,
+        ];
     }
 }

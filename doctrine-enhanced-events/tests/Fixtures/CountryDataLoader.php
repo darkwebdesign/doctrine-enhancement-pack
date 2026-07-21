@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) 2017-present DarkWeb Design.
+ * Copyright (c) 2026-present DarkWeb Design.
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -18,20 +18,22 @@
  * SOFTWARE.
  */
 
-declare(strict_types=1);
+namespace DarkWebDesign\DoctrineEnhancedEvents\Tests\Fixtures;
 
-namespace DarkWebDesign\DoctrineEnhancedEvents;
+use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\Country;
+use Doctrine\Common\DataFixtures\AbstractFixture;
+use Doctrine\Persistence\ObjectManager;
 
-/**
- * @author Raymond Schouten
- *
- * @since 2.4
- */
-class Events
+class CountryDataLoader extends AbstractFixture
 {
-    public const preUpdateEnhanced = 'preUpdateEnhanced';
-    public const postUpdateEnhanced = 'postUpdateEnhanced';
-    public const postRemoveEnhanced = 'postRemoveEnhanced';
-    public const onFlushEnhanced = 'onFlushEnhanced';
-    public const postFlushEnhanced = 'postFlushEnhanced';
+    public function load(ObjectManager $manager): void
+    {
+        $unitedStates = new Country();
+        $unitedStates->setCode('US');
+
+        $manager->persist($unitedStates);
+        $manager->flush();
+
+        $this->addReference('unitedStates', $unitedStates);
+    }
 }
