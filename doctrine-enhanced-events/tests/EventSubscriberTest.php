@@ -25,8 +25,11 @@ namespace DarkWebDesign\DoctrineEnhancedEvents\Tests;
 use DarkWebDesign\DoctrineEnhancedEvents\Events;
 use DarkWebDesign\DoctrineEnhancedEvents\EventSubscriber;
 use DarkWebDesign\DoctrineEnhancedEvents\FlushEventArgs;
+use DarkWebDesign\DoctrineEnhancedEvents\PostRemoveEventArgs;
+use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\Country;
 use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\Person;
 use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\Pet;
+use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\State;
 use DarkWebDesign\DoctrineEnhancedEvents\Tests\Mocks\EventSubscriberMock;
 use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs;
 use Doctrine\ORM\EntityRepository;
@@ -36,6 +39,7 @@ use PHPUnit\Framework\MockObject\MockObject;
  * @covers \DarkWebDesign\DoctrineEnhancedEvents\EventSubscriber
  *
  * @uses \DarkWebDesign\DoctrineEnhancedEvents\FlushEventArgs
+ * @uses \DarkWebDesign\DoctrineEnhancedEvents\PostRemoveEventArgs
  * @uses \DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs
  */
 class EventSubscriberTest extends OrmFunctionalTestCase
@@ -61,6 +65,7 @@ class EventSubscriberTest extends OrmFunctionalTestCase
                 Events::onFlushEnhanced,
                 Events::preUpdateEnhanced,
                 Events::postUpdateEnhanced,
+                Events::postRemoveEnhanced,
                 Events::postFlushEnhanced,
             ]));
 
@@ -171,6 +176,42 @@ class EventSubscriberTest extends OrmFunctionalTestCase
 
         $this->assertNull($danielleMurphy);
         $this->assertNotNull($danielleSandersMurphy);
+    }
+
+    public function testPostRemoveEventArgs(): void
+    {
+        $stateRepository = $this->entityManager->getRepository(State::class);
+        $countryRepository = $this->entityManager->getRepository(Country::class);
+
+        $unitedStates = $countryRepository->findOneBy(['code' => 'US']);
+        $california = $stateRepository->findOneBy(['code' => 'CA', 'country' => $unitedStates]);
+
+        $this->assertNotNull($california);
+        $this->assertNotNull($unitedStates);
+
+        $assertPostRemoveEventArgs = function (PostRemoveEventArgs $args) use ($california, $unitedStates) {
+            $this->assertSame($california, $args->getObject());
+
+            $this->assertCount(2, $args->getDeletedIdentifierValues());
+            $this->assertArrayHasKey('code', $args->getDeletedIdentifierValues());
+            $this->assertSame('CA', $args->getDeletedIdentifierValues()['code']);
+            $this->assertArrayHasKey('country', $args->getDeletedIdentifierValues());
+            $this->assertSame($unitedStates, $args->getDeletedIdentifierValues()['country']);
+
+            return true;
+        };
+
+        $this->eventSubscriberMock
+            ->expects($this->once())
+            ->method('postRemoveEnhanced')
+            ->with($this->callback($assertPostRemoveEventArgs));
+
+        $this->entityManager->remove($california);
+        $this->entityManager->flush();
+
+        $california = $stateRepository->findOneBy(['code' => 'CA']);
+
+        $this->assertNull($california);
     }
 
     public function testUpdateEntityInsertionOnFlush(): void
