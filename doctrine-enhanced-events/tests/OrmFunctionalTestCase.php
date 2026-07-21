@@ -23,7 +23,9 @@ declare(strict_types=1);
 namespace DarkWebDesign\DoctrineEnhancedEvents\Tests;
 
 use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\Person;
+use DarkWebDesign\DoctrineEnhancedEvents\Tests\Entities\Pet;
 use DarkWebDesign\DoctrineEnhancedEvents\Tests\Fixtures\PersonDataLoader;
+use DarkWebDesign\DoctrineEnhancedEvents\Tests\Fixtures\PetDataLoader;
 use Doctrine\Common\DataFixtures\Executor\ORMExecutor;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\DataFixtures\Loader;
@@ -37,10 +39,12 @@ abstract class OrmFunctionalTestCase extends TestCase
 {
     private const ENTITY_CLASSNAMES = [
         Person::class,
+        Pet::class,
     ];
 
     private const FIXTURE_CLASSNAMES = [
         PersonDataLoader::class,
+        PetDataLoader::class,
     ];
 
     /** @var EntityManager */
