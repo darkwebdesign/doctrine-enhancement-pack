@@ -117,7 +117,7 @@ $eventManager->addEventSubscriber(new MyEventSubscriber());
 
 ## preUpdateEnhanced, postUpdateEnhanced
 
-Via the `EnhancedUpdateEventArgs` you have access to the original entity, which can be used to compare changes:
+Via the `UpdateEventArgs` you have access to the original entity, which can be used to compare changes:
 
 ```php
 use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs as EnhancedUpdateEventArgs;
@@ -154,8 +154,8 @@ class MyEventListener
 
 ## onFlushEnhanced, postFlushEnhanced
 
-Via the `EnhancedFlushEventArgs` you have access to the created, updated (including original entities, which can be used
-to compare changes) and deleted entities:
+Via the `FlushEventArgs` you have access to the created, updated (including original entities, which can be used to
+compare changes) and deleted entities:
 
 ```php
 use DarkWebDesign\DoctrineEnhancedEvents\FlushEventArgs as EnhancedFlushEventArgs;

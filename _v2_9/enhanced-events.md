@@ -50,6 +50,11 @@ class MyEventListener
         // ...
     }
 
+    public function postRemoveEnhanced()
+    {
+        // ...
+    }
+
     public function postFlushEnhanced()
     {
         // ...
@@ -65,6 +70,7 @@ $eventManager->addEventListener(
         EnhancedEvents::onFlushEnhanced,
         EnhancedEvents::preUpdateEnhanced,
         EnhancedEvents::postUpdateEnhanced,
+        EnhancedEvents::postRemoveEnhanced,
         EnhancedEvents::postFlushEnhanced,
     ],
     new MyEventListener()
@@ -94,6 +100,11 @@ class MyEventSubscriber implements EventSubscriber
         // ...
     }
 
+    public function postRemoveEnhanced()
+    {
+        // ...
+    }
+
     public function postFlushEnhanced()
     {
         // ...
@@ -105,6 +116,7 @@ class MyEventSubscriber implements EventSubscriber
             EnhancedEvents::onFlushEnhanced,
             EnhancedEvents::preUpdateEnhanced,
             EnhancedEvents::postUpdateEnhanced,
+            EnhancedEvents::postRemoveEnhanced,
             EnhancedEvents::postFlushEnhanced,
         ];
     }
@@ -117,7 +129,7 @@ $eventManager->addEventSubscriber(new MyEventSubscriber());
 
 ## preUpdateEnhanced, postUpdateEnhanced
 
-Via the `EnhancedUpdateEventArgs` you have access to the original entity, which can be used to compare changes:
+Via the `UpdateEventArgs` you have access to the original entity, which can be used to compare changes:
 
 ```php
 use DarkWebDesign\DoctrineEnhancedEvents\UpdateEventArgs as EnhancedUpdateEventArgs;
@@ -152,10 +164,30 @@ class MyEventListener
 }
 ```
 
+## postRemoveEnhanced
+
+Via the `PostRemoveEventArgs` you have access to the deleted identifier value(s):
+
+```php
+use DarkWebDesign\DoctrineEnhancedEvents\PostRemoveEventArgs as EnhancedPostRemoveEventArgs;
+
+class MyEventListener
+{
+    public function preUpdateEnhanced(EnhancedPostRemoveEventArgs $event)
+    {
+        $entity = $event->getEntity();
+        $identifierValues = $event->getDeletedIdentifierValues(); // for composite identifiers
+        $identifierValue = $event->getDeletedSingleIdentifierValue();
+
+        // Do something with the identifier value(s).
+    }
+}
+```
+
 ## onFlushEnhanced, postFlushEnhanced
 
-Via the `EnhancedFlushEventArgs` you have access to the created, updated (including original entities, which can be used
-to compare changes) and deleted entities:
+Via the `FlushEventArgs` you have access to the created, updated (including original entities, which can be used to
+compare changes) and deleted entities:
 
 ```php
 use DarkWebDesign\DoctrineEnhancedEvents\FlushEventArgs as EnhancedFlushEventArgs;
