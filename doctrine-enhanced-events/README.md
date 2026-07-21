@@ -15,6 +15,7 @@ Learn more about it in its [documentation](https://darkwebdesign.github.io/doctr
 ## Features
 
 * Access to the original entity in the `pre-update` and `post-update` lifecycle events.
+* Access to the original identifier value(s) in the `post-remove` lifecycle event.
 * Access to the created, updated (also their original entities) and deleted entities in the `on-flush` and `post-flush` events.
 * Modifying the actual entities (instead of via "change set" array) in the `on-flush` event and `pre-update` lifecycle event.
 * Automatic recomputing of the "change set" after modifying the entities in the `on-flush` event.
